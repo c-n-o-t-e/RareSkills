@@ -50,4 +50,14 @@ contract SanctionToken is ERC777 {
     function isBannedAddress(address account) external view returns (bool) {
         return _bannedAddresses[account];
     }
+
+    function _beforeTokenTransfer(
+        address,
+        address from,
+        address to,
+        uint256
+    ) internal virtual override {
+        if (_bannedAddresses[from]) revert SanctionToken_Sender_Is_Banned();
+        if (_bannedAddresses[to]) revert SanctionToken_Recipient_Is_Banned();
+    }
 }
