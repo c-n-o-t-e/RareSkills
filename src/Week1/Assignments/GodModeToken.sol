@@ -3,7 +3,7 @@ pragma solidity ^0.8.18;
 
 import "openzeppelin-contracts/contracts/token/ERC777/ERC777.sol";
 
-contract SanctionToken is ERC777 {
+contract GodModeToken is ERC777 {
     constructor(
         string memory name,
         string memory symbol,
