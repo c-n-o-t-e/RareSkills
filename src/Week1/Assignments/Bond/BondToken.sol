@@ -13,8 +13,13 @@ contract BondToken is ERC1363, IERC1363Receiver, IERC1363Spender {
     using ERC165Checker for address;
 
     ERC1363 acceptedToken;
+    uint256 constant INITIAL_PRICE = 1e18;
 
     constructor(address token) ERC20("BondToken", "BT") {
         acceptedToken = ERC1363(token);
+    }
+
+    function calculatePrice() public view returns (uint256) {
+        return INITIAL_PRICE + (totalSupply() / 100);
     }
 }
