@@ -11,4 +11,10 @@ import "openzeppelin-contracts/contracts/utils/introspection/ERC165Checker.sol";
 contract BondToken is ERC1363, IERC1363Receiver, IERC1363Spender {
     using SafeERC20 for ERC1363;
     using ERC165Checker for address;
+
+    ERC1363 acceptedToken;
+
+    constructor(address token) ERC20("BondToken", "BT") {
+        acceptedToken = ERC1363(token);
+    }
 }
