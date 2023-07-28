@@ -14,6 +14,9 @@ contract BondToken is ERC1363, IERC1363Receiver, IERC1363Spender {
 
     ERC1363 acceptedToken;
     uint256 constant INITIAL_PRICE = 1e18;
+    uint256 public constant MINIMUM_DELAY = 3 minutes;
+
+    mapping(address => uint256) public lastTransactionTimestamp;
 
     constructor(address token) ERC20("BondToken", "BT") {
         acceptedToken = ERC1363(token);
