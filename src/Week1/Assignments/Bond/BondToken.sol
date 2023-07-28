@@ -22,4 +22,11 @@ contract BondToken is ERC1363, IERC1363Receiver, IERC1363Spender {
     function calculatePrice() public view returns (uint256) {
         return INITIAL_PRICE + (totalSupply() / 100);
     }
+
+    function onTransferReceived(
+        address spender,
+        address sender,
+        uint256 amount,
+        bytes memory data
+    ) public override returns (bytes4) {}
 }
