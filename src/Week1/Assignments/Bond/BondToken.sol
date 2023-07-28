@@ -60,6 +60,20 @@ contract BondToken is ERC1363, IERC1363Receiver, IERC1363Spender {
         return IERC1363Receiver.onTransferReceived.selector;
     }
 
+    function onApprovalReceived(
+        address sender,
+        uint256 amount,
+        bytes memory data
+    ) public override returns (bytes4) {
+        if (_msgSender() != address(acceptedToken))
+            revert BondToken_AcceptedToken_Not_Sender();
+
+        emit TokensApproved(sender, amount, data);
+        _approvalReceived(sender, data);
+
+        return IERC1363Spender.onApprovalReceived.selector;
+    }
+
     function supportsInterface(
         bytes4 interfaceId
     ) public view virtual override returns (bool) {
@@ -67,5 +81,23 @@ contract BondToken is ERC1363, IERC1363Receiver, IERC1363Spender {
             interfaceId == type(IERC1363Receiver).interfaceId ||
             interfaceId == type(IERC1363Spender).interfaceId ||
             super.supportsInterface(interfaceId);
+    }
+
+    function _approvalReceived(
+        address sender,
+        bytes memory data
+    ) internal virtual {
+        (uint256 amount, ) = _validatePurchase(data);
+        acceptedToken.transferFromAndCall(sender, address(this), amount, data);
+    }
+
+    function _validatePurchase(
+        bytes memory data
+    ) internal view returns (uint256 amount_, uint256 numberOfTokensToBuy) {
+        numberOfTokensToBuy = abi.decode(data, (uint256));
+        amount_ = (numberOfTokensToBuy * calculatePrice()) / 1e18;
+
+        if (numberOfTokensToBuy == 0)
+            revert BondToken_Number_Of_Tokens_To_Buy_Cannot_Be_Zero();
     }
 }
