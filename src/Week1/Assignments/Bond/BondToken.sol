@@ -18,6 +18,19 @@ contract BondToken is ERC1363, IERC1363Receiver, IERC1363Spender {
 
     mapping(address => uint256) public lastTransactionTimestamp;
 
+    event TokensReceived(
+        address indexed operator,
+        address indexed sender,
+        uint256 amount
+    );
+
+    event TokensApproved(address indexed sender, uint256 amount, bytes data);
+
+    error BondToken_Delay_Period_Not_Passed();
+    error BondToken_AcceptedToken_Not_Sender();
+    error BondToken_Number_Of_Tokens_To_Buy_Cannot_Be_Zero();
+    error BondToken_Sent_Funds_Not_Enough_To_Buy_Token_Amount_User_Desire();
+
     constructor(address token) ERC20("BondToken", "BT") {
         acceptedToken = ERC1363(token);
     }
