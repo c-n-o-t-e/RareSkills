@@ -31,5 +31,32 @@ contract BondToken is ERC1363, IERC1363Receiver, IERC1363Spender {
         address sender,
         uint256 amount,
         bytes memory data
-    ) public override returns (bytes4) {}
+    ) public override returns (bytes4) {
+        if (block.timestamp > lastTransactionTimestamp[sender] + MINIMUM_DELAY)
+            revert BondToken_Delay_Period_Not_Passed();
+
+        if (_msgSender() == address(acceptedToken)) {
+            (uint256 amount_, uint256 numberOfTokensToBuy) = _validatePurchase(
+                data
+            );
+
+            if (amount != amount_)
+                revert BondToken_Sent_Funds_Not_Enough_To_Buy_Token_Amount_User_Desire();
+
+            _mint(sender, numberOfTokensToBuy);
+
+            emit TokensReceived(spender, sender, numberOfTokensToBuy);
+        } else if (_msgSender() == address(this)) {
+            uint256 amountToSend = (calculatePrice() * amount) / 1e18;
+            acceptedToken.safeTransfer(sender, amountToSend);
+
+            emit TokensReceived(spender, sender, amount);
+        } else {
+            revert BondToken_AcceptedToken_Not_Sender();
+        }
+
+        lastTransactionTimestamp[sender] = block.timestamp;
+
+        return IERC1363Receiver.onTransferReceived.selector;
+    }
 }
