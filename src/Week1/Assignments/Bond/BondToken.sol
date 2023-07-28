@@ -59,4 +59,13 @@ contract BondToken is ERC1363, IERC1363Receiver, IERC1363Spender {
 
         return IERC1363Receiver.onTransferReceived.selector;
     }
+
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view virtual override returns (bool) {
+        return
+            interfaceId == type(IERC1363Receiver).interfaceId ||
+            interfaceId == type(IERC1363Spender).interfaceId ||
+            super.supportsInterface(interfaceId);
+    }
 }
