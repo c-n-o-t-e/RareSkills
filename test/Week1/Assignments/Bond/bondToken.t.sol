@@ -16,6 +16,10 @@ contract BondTest is Test {
     ReserveToken public reserveToken;
     ReserveToken public reserveToken0;
 
+    modifier startAtPresentDay() {
+        vm.warp(17792682);
+    }
+
     function setUp() public {
         reserveToken = new ReserveToken();
         bondToken = new BondToken(address(reserveToken));
