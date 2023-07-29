@@ -87,6 +87,46 @@ contract BondTest is Test {
         vm.stopPrank();
     }
 
+    function testBuyBondTokenAndSellBackWithProfit() external {
+        vm.startPrank(contractDeployer);
+        reserveToken.freeMint();
+
+        bytes memory data = abi.encode(1 ether);
+        reserveToken.approveAndCall(address(bondToken), 2 ether, data);
+
+        vm.startPrank(user);
+
+        for (uint i; i < 3; ++i) {
+            reserveToken.freeMint();
+        }
+
+        reserveToken.approveAndCall(address(bondToken), 2 ether, data);
+        reserveToken.approveAndCall(address(bondToken), 2 ether, data);
+
+        vm.startPrank(contractDeployer);
+        uint256 amount = (1 ether * bondToken.calculatePrice()) / 1e18;
+
+        uint256 bondBalanceBeforeTx = bondToken.balanceOf(contractDeployer);
+        uint256 reserveBalanceBeforeTx = reserveToken.balanceOf(
+            contractDeployer
+        );
+
+        bondToken.transferAndCall(address(bondToken), 1 ether, "");
+
+        uint256 bondBalanceAfterTx = bondToken.balanceOf(contractDeployer);
+        uint256 reserveBalanceAfterTx = reserveToken.balanceOf(
+            contractDeployer
+        );
+
+        assertEq(reserveBalanceBeforeTx, 0);
+        assertEq(bondBalanceBeforeTx, 1 ether);
+
+        assertEq(bondBalanceAfterTx, 0);
+        assertEq(reserveBalanceAfterTx, amount);
+
+        vm.stopPrank();
+    }
+
     function createAddress(string memory name) public returns (address) {
         address addr = address(
             uint160(uint256(keccak256(abi.encodePacked(name))))
