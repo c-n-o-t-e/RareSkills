@@ -24,4 +24,27 @@ contract BondTest is Test {
         reserveToken = new ReserveToken();
         bondToken = new BondToken(address(reserveToken));
     }
+
+    function createAddress(string memory name) public returns (address) {
+        address addr = address(
+            uint160(uint256(keccak256(abi.encodePacked(name))))
+        );
+        vm.label(addr, name);
+        return addr;
+    }
+
+    function onTransferReceived(
+        address,
+        address,
+        uint256,
+        bytes memory
+    ) public pure returns (bytes4) {
+        return IERC1363Receiver.onTransferReceived.selector;
+    }
+
+    function supportsInterface(
+        bytes4 interfaceId
+    ) public view virtual returns (bool) {
+        return interfaceId == type(IERC1363Receiver).interfaceId;
+    }
 }
