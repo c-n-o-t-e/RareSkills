@@ -21,6 +21,12 @@ contract BondTest is Test {
 
     modifier startAtPresentDay() {
         vm.warp(17792682);
+        _;
+    }
+
+    function setUp() public {
+        reserveToken = new ReserveToken();
+        bondToken = new BondToken(address(reserveToken));
     }
 
     function testBuyBondToken() external {
@@ -46,9 +52,39 @@ contract BondTest is Test {
         vm.stopPrank();
     }
 
-    function setUp() public {
-        reserveToken = new ReserveToken();
-        bondToken = new BondToken(address(reserveToken));
+    function testBuyBondTokenAsPriceChanges() external {
+        vm.startPrank(contractDeployer);
+
+        for (uint i; i < 3; ++i) {
+            reserveToken.freeMint();
+        }
+
+        uint256 bondBalanceBeforeTx = bondToken.balanceOf(contractDeployer);
+        uint256 reserveBalanceBeforeTx = reserveToken.balanceOf(
+            contractDeployer
+        );
+
+        bytes memory data = abi.encode(1 ether);
+        reserveToken.approveAndCall(address(bondToken), 2 ether, data);
+
+        uint256 amount = (1 ether * bondToken.calculatePrice()) / 1e18;
+        reserveToken.approveAndCall(address(bondToken), 2 ether, data);
+
+        uint256 bondBalanceAfterTx = bondToken.balanceOf(contractDeployer);
+        uint256 reserveBalanceAfterTx = reserveToken.balanceOf(
+            contractDeployer
+        );
+
+        assertEq(bondBalanceBeforeTx, 0);
+        assertEq(reserveBalanceBeforeTx, 3 ether);
+
+        assertEq(
+            reserveBalanceBeforeTx - (amount + 1 ether),
+            reserveBalanceAfterTx
+        );
+
+        assertEq(bondBalanceAfterTx, 2 * 1 ether);
+        vm.stopPrank();
     }
 
     function createAddress(string memory name) public returns (address) {
