@@ -16,6 +16,9 @@ contract BondTest is Test {
     ReserveToken public reserveToken;
     ReserveToken public reserveToken0;
 
+    address user = createAddress("user");
+    address contractDeployer = createAddress("deployer");
+
     modifier startAtPresentDay() {
         vm.warp(17792682);
     }
