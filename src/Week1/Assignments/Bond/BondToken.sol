@@ -1,4 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
+
+/**
+ * Created on 2023-07-29 6:08
+ * @Summary A smart contract that lets users buy tokens in Linear Curve fashion.
+ * @title BondToken
+ * @author: c-n-o-t-e
+ */
+
 pragma solidity ^0.8.18;
 
 import "forge-std/console.sol";
