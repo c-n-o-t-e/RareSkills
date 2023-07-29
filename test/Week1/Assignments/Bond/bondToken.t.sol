@@ -192,6 +192,29 @@ contract BondTest is Test {
         vm.stopPrank();
     }
 
+    function testFailWhenUserAmountIsBelowDesiredTokenToBuy() external {
+        vm.startPrank(contractDeployer);
+
+        reserveToken.freeMint();
+        bytes memory data = abi.encode(2 ether);
+
+        reserveToken.approveAndCall(address(bondToken), 3 ether, data);
+        vm.stopPrank();
+    }
+
+    function testFailWhenContractAddressIsNotAcceptedTokenOrBondToken()
+        external
+    {
+        reserveToken0 = new ReserveToken();
+        vm.startPrank(contractDeployer);
+
+        reserveToken0.freeMint();
+        bytes memory data = abi.encode(1 ether);
+
+        reserveToken0.approveAndCall(address(bondToken), 3 ether, data);
+        vm.stopPrank();
+    }
+
     function createAddress(string memory name) public returns (address) {
         address addr = address(
             uint160(uint256(keccak256(abi.encodePacked(name))))
