@@ -23,6 +23,29 @@ contract BondTest is Test {
         vm.warp(17792682);
     }
 
+    function testBuyBondToken() external {
+        vm.startPrank(contractDeployer);
+        reserveToken.freeMint();
+
+        uint256 bondBalanceBeforeTx = bondToken.balanceOf(contractDeployer);
+        uint256 reserveBalanceBeforeTx = reserveToken.balanceOf(
+            contractDeployer
+        );
+
+        bytes memory data = abi.encode(1 ether);
+        reserveToken.approveAndCall(address(bondToken), 2 ether, data);
+
+        uint256 bondBalanceAfterTx = bondToken.balanceOf(contractDeployer);
+        uint256 reserveBalanceAfterTx = reserveToken.balanceOf(
+            contractDeployer
+        );
+
+        assertEq(bondBalanceBeforeTx, reserveBalanceAfterTx);
+        assertEq(bondBalanceAfterTx, reserveBalanceBeforeTx);
+
+        vm.stopPrank();
+    }
+
     function setUp() public {
         reserveToken = new ReserveToken();
         bondToken = new BondToken(address(reserveToken));
