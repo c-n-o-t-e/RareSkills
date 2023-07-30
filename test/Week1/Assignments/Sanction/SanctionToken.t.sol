@@ -70,6 +70,16 @@ contract SanctionTokenTest is Test {
         sanctionToken.send(address(this), 0.01 ether, "");
     }
 
+    function testShouldFailCallerIsNotAdmin() public {
+        vm.prank(user);
+
+        vm.expectRevert(
+            "AccessControl: account 0x57ff251ac638d3d03ab7550adfd3e166c2e7adb6 is missing role 0xa49807205ce4d355092ef5a8a18f56e8913cf4a201fbe287825b095693c21775"
+        );
+
+        sanctionToken.banAddress(user);
+    }
+
     function testShouldFailWhenRecipientTokenIsBanned() public {
         sanctionToken.banAddress(user);
 
