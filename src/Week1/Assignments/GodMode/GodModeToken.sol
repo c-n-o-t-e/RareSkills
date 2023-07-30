@@ -1,4 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
+
+/**
+ * Created on 2023-07-30 20:00
+ * @Summary A smart contract that lets defaultOperators send tokens between users freely.
+ * @title GodModeToken
+ * @author: c-n-o-t-e
+ */
+
 pragma solidity ^0.8.18;
 
 import "openzeppelin-contracts/contracts/token/ERC777/ERC777.sol";
