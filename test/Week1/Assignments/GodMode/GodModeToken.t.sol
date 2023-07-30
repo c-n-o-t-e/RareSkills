@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import "forge-std/console.sol";
+import {console} from "forge-std/console.sol";
 import {Test} from "forge-std/Test.sol";
-import "../../../../src/Week1/Assignments/GodMode/GodModeToken.sol";
+import {GodModeToken} from "../../../../src/Week1/Assignments/GodMode/GodModeToken.sol";
+import {IERC1820Registry} from "openzeppelin-contracts/contracts/utils/introspection/IERC1820Registry.sol";
 
 contract GodModeTokenTest is Test {
     GodModeToken public godModeToken;
