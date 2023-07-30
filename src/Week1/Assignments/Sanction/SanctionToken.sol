@@ -8,10 +8,10 @@ pragma solidity ^0.8.18;
  * @author: c-n-o-t-e
  */
 
-import "forge-std/console.sol";
-import "openzeppelin-contracts/contracts/token/ERC777/ERC777.sol";
-import "openzeppelin-contracts/contracts/token/ERC777/IERC777Sender.sol";
-import "openzeppelin-contracts/contracts/token/ERC777/IERC777Recipient.sol";
+import {ERC777} from "openzeppelin-contracts/contracts/token/ERC777/ERC777.sol";
+import {AccessControl} from "openzeppelin-contracts/contracts/access/AccessControl.sol";
+import {IERC777Sender} from "openzeppelin-contracts/contracts/token/ERC777/IERC777Sender.sol";
+import {IERC777Recipient} from "openzeppelin-contracts/contracts/token/ERC777/IERC777Recipient.sol";
 
 contract SanctionToken is ERC777 {
     mapping(address => bool) private _bannedAddresses;
