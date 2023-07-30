@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
+import "forge-std/console.sol";
 import "openzeppelin-contracts/contracts/token/ERC777/ERC777.sol";
+import "openzeppelin-contracts/contracts/token/ERC777/IERC777Sender.sol";
+import "openzeppelin-contracts/contracts/token/ERC777/IERC777Recipient.sol";
 
 contract SanctionToken is ERC777 {
     mapping(address => bool) private _bannedAddresses;
@@ -57,7 +60,7 @@ contract SanctionToken is ERC777 {
         address to,
         uint256
     ) internal virtual override {
-        if (_bannedAddresses[from]) revert SanctionToken_Sender_Is_Banned();
         if (_bannedAddresses[to]) revert SanctionToken_Recipient_Is_Banned();
+        if (_bannedAddresses[from]) revert SanctionToken_Sender_Is_Banned();
     }
 }
