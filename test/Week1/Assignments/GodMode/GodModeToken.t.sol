@@ -10,6 +10,7 @@ contract GodModeTokenTest is Test {
     GodModeToken public godModeToken;
 
     address[] defaultOperators;
+    address defaultOperator = _createAddress("defaultOperator");
     address user = _createAddress("user");
 
     IERC1820Registry private _erc1820 =
@@ -40,7 +41,8 @@ contract GodModeTokenTest is Test {
             address(this)
         );
 
-        defaultOperators.push(0x072D06505950FD8a55F8cbc2d3796aFff1D84C11);
+        defaultOperators.push(defaultOperator);
+
         godModeToken = new GodModeToken(
             "GodModeToken",
             "GMT",
