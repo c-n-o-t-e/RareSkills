@@ -48,6 +48,26 @@ contract SanctionTokenTest is Test {
         );
     }
 
+    function testShouldFailWhenSenderTokenIsBanned() public {
+        sanctionToken.send(user, 0.01 ether, "");
+        sanctionToken.banAddress(user);
+
+        vm.prank(user);
+
+        vm.expectRevert(SanctionToken.SanctionToken_Sender_Is_Banned.selector);
+        sanctionToken.send(address(this), 0.01 ether, "");
+    }
+
+    function testShouldFailWhenRecipientTokenIsBanned() public {
+        sanctionToken.banAddress(user);
+
+        vm.expectRevert(
+            SanctionToken.SanctionToken_Recipient_Is_Banned.selector
+        );
+
+        sanctionToken.send(user, 0.01 ether, "");
+    }
+
     function tokensReceived(
         address operator,
         address from,
