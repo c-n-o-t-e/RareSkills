@@ -48,6 +48,19 @@ contract SanctionTokenTest is Test {
         );
     }
 
+    function testBanAddress() external {
+        assertEq(sanctionToken.isBannedAddress(user), false);
+        sanctionToken.banAddress(user);
+        assertEq(sanctionToken.isBannedAddress(user), true);
+    }
+
+    function testUnbanAddress() external {
+        sanctionToken.banAddress(user);
+        assertEq(sanctionToken.isBannedAddress(user), true);
+        sanctionToken.unbanAddress(user);
+        assertEq(sanctionToken.isBannedAddress(user), false);
+    }
+
     function testShouldFailWhenSenderTokenIsBanned() public {
         sanctionToken.send(user, 0.01 ether, "");
         sanctionToken.banAddress(user);
