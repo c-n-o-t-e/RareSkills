@@ -1,6 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
+/**
+ * Created on 2023-07-30 19:26
+ * @Summary A smart contract that lets admin sanction addresses from sending or receiving tokens.
+ * @title SanctionToken
+ * @author: c-n-o-t-e
+ */
+
 import "forge-std/console.sol";
 import "openzeppelin-contracts/contracts/token/ERC777/ERC777.sol";
 import "openzeppelin-contracts/contracts/token/ERC777/IERC777Sender.sol";
