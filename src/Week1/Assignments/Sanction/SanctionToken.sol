@@ -13,7 +13,9 @@ import {AccessControl} from "openzeppelin-contracts/contracts/access/AccessContr
 import {IERC777Sender} from "openzeppelin-contracts/contracts/token/ERC777/IERC777Sender.sol";
 import {IERC777Recipient} from "openzeppelin-contracts/contracts/token/ERC777/IERC777Recipient.sol";
 
-contract SanctionToken is ERC777 {
+contract SanctionToken is ERC777, AccessControl {
+    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
+
     mapping(address => bool) private _bannedAddresses;
 
     event AddressBanned(address indexed addr);
@@ -34,10 +36,11 @@ contract SanctionToken is ERC777 {
         uint256 initialSupply,
         address[] memory defaultOperators
     ) ERC777(name, symbol, defaultOperators) {
+        _grantRole(ADMIN_ROLE, admin);
         _mint(msg.sender, initialSupply, "", "");
     }
 
-    function banAddress(address account) external {
+    function banAddress(address account) external onlyRole(ADMIN_ROLE) {
         if (account == address(0)) revert SanctionToken_Invalid_Address();
 
         if (_bannedAddresses[account])
@@ -47,7 +50,7 @@ contract SanctionToken is ERC777 {
         emit AddressBanned(account);
     }
 
-    function unbanAddress(address account) external {
+    function unbanAddress(address account) external onlyRole(ADMIN_ROLE) {
         if (account == address(0)) revert SanctionToken_Invalid_Address();
 
         if (!_bannedAddresses[account])
