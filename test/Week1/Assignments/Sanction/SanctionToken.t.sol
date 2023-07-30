@@ -10,7 +10,6 @@ contract SanctionTokenTest is Test {
     SanctionToken public sanctionToken;
 
     address user = _createAddress("user");
-    address[] defaultOperators;
 
     IERC1820Registry private _erc1820 =
         IERC1820Registry(0x1820a4B7618BdE71Dce8cdc73aAB6C95905faD24);
