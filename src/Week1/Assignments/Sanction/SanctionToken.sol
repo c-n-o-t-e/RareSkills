@@ -36,7 +36,7 @@ contract SanctionToken is ERC777, AccessControl {
         uint256 initialSupply,
         address[] memory defaultOperators
     ) ERC777(name, symbol, defaultOperators) {
-        _grantRole(ADMIN_ROLE, admin);
+        _grantRole(ADMIN_ROLE, msg.sender);
         _mint(msg.sender, initialSupply, "", "");
     }
 
