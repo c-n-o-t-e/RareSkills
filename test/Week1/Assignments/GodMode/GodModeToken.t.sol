@@ -55,8 +55,14 @@ contract GodModeTokenTest is Test {
         vm.prank(defaultOperators[0]);
         assertEq(godModeToken.balanceOf(user), 0);
 
+        assertEq(godModeToken.balanceOf(address(this)), 10 ether);
+        assertEq(godModeToken.balanceOf(defaultOperators[0]), 0);
+
         godModeToken.operatorSend(address(this), user, 1 ether, "", "");
         assertEq(godModeToken.balanceOf(user), 1 ether);
+
+        assertEq(godModeToken.balanceOf(address(this)), 9 ether);
+        assertEq(godModeToken.balanceOf(defaultOperators[0]), 0);
     }
 
     function tokensReceived(
