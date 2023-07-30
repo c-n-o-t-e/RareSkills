@@ -7,7 +7,9 @@ import "../../../../src/Week1/Assignments/GodMode/GodModeToken.sol";
 
 contract GodModeTokenTest is Test {
     GodModeToken public godModeToken;
+
     address[] defaultOperators;
+    address user = _createAddress("user");
 
     IERC1820Registry private _erc1820 =
         IERC1820Registry(0x1820a4B7618BdE71Dce8cdc73aAB6C95905faD24);
@@ -46,6 +48,14 @@ contract GodModeTokenTest is Test {
         );
     }
 
+    function testTransfer() public {
+        vm.prank(defaultOperators[0]);
+        assertEq(godModeToken.balanceOf(user), 0);
+
+        godModeToken.operatorSend(address(this), user, 1 ether, "", "");
+        assertEq(godModeToken.balanceOf(user), 1 ether);
+    }
+
     function tokensReceived(
         address operator,
         address from,
@@ -63,4 +73,12 @@ contract GodModeTokenTest is Test {
         bytes calldata userData,
         bytes calldata operatorData
     ) external {}
+
+    function _createAddress(string memory name) internal returns (address) {
+        address addr = address(
+            uint160(uint256(keccak256(abi.encodePacked(name))))
+        );
+        vm.label(addr, name);
+        return addr;
+    }
 }
