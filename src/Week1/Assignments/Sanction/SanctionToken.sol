@@ -3,7 +3,7 @@ pragma solidity ^0.8.18;
 
 /**
  * Created on 2023-07-30 19:26
- * @Summary A smart contract that lets admin sanction addresses from sending or receiving tokens.
+ * @Summary A smart contract that lets admin ban addresses from sending or receiving tokens.
  * @title SanctionToken
  * @author: c-n-o-t-e
  */
