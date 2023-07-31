@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.13;
 
-import "forge-std/console.sol";
 import {Test} from "forge-std/Test.sol";
 import {ISanctionToken} from "../../../../src/Week1/Assignments/Sanction/ISanctionToken.sol";
 import {SanctionToken} from "../../../../src/Week1/Assignments/Sanction/SanctionToken.sol";
