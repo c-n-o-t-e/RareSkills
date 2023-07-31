@@ -38,6 +38,8 @@ interface IEscrow {
     /// seller might demand buyer confirm receipt and release `price`.
     function initiateDispute() external;
 
+    /// @dev only seller can withdraw tokens.
+    /// seller cannot withdraw until deposit time passes, state is in Created.
     function withdraw() external;
 
     /// @notice Arbiter can resolve dispute and claim token reward by entering in split of `price` value,
