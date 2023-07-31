@@ -11,5 +11,19 @@ import {ReentrancyGuard} from "openzeppelin-contracts/contracts/security/Reentra
 /// @title Escrow
 /// @notice Escrow contract for transactions between a seller, buyer, and optional arbiter.
 contract Escrow is IEscrow, ReentrancyGuard {
+    using SafeERC20 for IERC20;
 
+    uint256 private immutable i_price;
+    /// @dev There is a risk that if a malicious token is used, the dispute process could be manipulated.
+    /// Therefore, careful consideration should be taken when chosing the token.
+    IERC20 private immutable i_tokenContract;
+    address private immutable i_buyer;
+
+    address private immutable i_seller;
+    address private immutable i_factoryAddress;
+
+    uint256 private immutable i_depositTime;
+    uint256 private immutable i_arbiterFee;
+
+    State private s_state;
 }
