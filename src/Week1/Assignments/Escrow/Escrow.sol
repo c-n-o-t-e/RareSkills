@@ -110,6 +110,7 @@ contract Escrow is IEscrow, ReentrancyGuard {
         emit Disputed(msg.sender);
     }
 
+    /// @inheritdoc IEscrow
     function resolveDispute(
         uint256 buyerAward
     ) external onlyFactory nonReentrant inState(State.Disputed) {
@@ -137,6 +138,7 @@ contract Escrow is IEscrow, ReentrancyGuard {
             escrowTokenContract.safeTransfer(escrowSeller, tokenBalance);
     }
 
+    /// @inheritdoc IEscrow
     function withdraw() external onlySeller inState(State.Created) {
         if (block.timestamp < escrowDepositTime + 3 days)
             revert Escrow_Withdrawal_Is_Not_Yet_Available();
