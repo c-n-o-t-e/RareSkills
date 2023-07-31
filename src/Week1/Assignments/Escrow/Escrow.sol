@@ -13,19 +13,22 @@ import {ReentrancyGuard} from "openzeppelin-contracts/contracts/security/Reentra
 contract Escrow is IEscrow, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
-    uint256 private immutable i_price;
+    uint256 private immutable escrowPrice;
+
     /// @dev There is a risk that if a malicious token is used, the dispute process could be manipulated.
     /// Therefore, careful consideration should be taken when chosing the token.
-    IERC20 private immutable i_tokenContract;
-    address private immutable i_buyer;
+    /// It is assumed that token used ought to be massly adopted like DAI, WETH etc
+    IERC20 private immutable escrowTokenContract;
 
-    address private immutable i_seller;
-    address private immutable i_factoryAddress;
+    address private immutable escrowBuyer;
+    address private immutable escrowSeller;
 
-    uint256 private immutable i_depositTime;
-    uint256 private immutable i_arbiterFee;
+    address private immutable escrowArbiter;
+    uint256 private immutable escrowArbiterFee;
+    uint256 private immutable escrowDepositTime;
 
-    State private s_state;
+    /// @dev Used to keep track of the escrow dealings.
+    State private escrowState;
 
     /// @dev Sets the Escrow transaction values for `price`, `tokenContract`, `buyer`, `seller`, `arbiter`, `arbiterFee`. All of
     /// these values are immutable: they can only be set once during construction and reflect essential deal terms.
@@ -36,61 +39,63 @@ contract Escrow is IEscrow, ReentrancyGuard {
         IERC20 tokenContract,
         address buyer,
         address seller,
-        address factoryAddress,
+        address arbiter,
         uint256 arbiterFee,
         uint256 depositTime
     ) {
         if (address(tokenContract) == address(0))
-            revert Escrow__TokenZeroAddress();
+            revert Escrow_Token_Zero_Address();
 
-        if (buyer == address(0)) revert Escrow__BuyerZeroAddress();
-        if (seller == address(0)) revert Escrow__SellerZeroAddress();
+        if (buyer == address(0)) revert Escrow_Buyer_Zero_Address();
+        if (seller == address(0)) revert Escrow_Seller_Zero_Address();
+        if (arbiter == address(0)) revert Escrow_Arbiter_Zero_Address();
 
         if (arbiterFee >= price)
-            revert Escrow__FeeExceedsPrice(price, arbiterFee);
+            revert Escrow_Fee_Exceeds_Price(price, arbiterFee);
 
         if (tokenContract.balanceOf(address(this)) < price)
-            revert Escrow__MustDeployWithTokenBalance();
+            revert Escrow_Must_Deploy_With_Token_Balance();
 
-        i_price = price;
-        i_tokenContract = tokenContract;
+        escrowPrice = price;
+        escrowTokenContract = tokenContract;
 
-        i_buyer = buyer;
-        i_seller = seller;
+        escrowBuyer = buyer;
+        escrowSeller = seller;
 
-        i_depositTime = depositTime;
-        i_arbiterFee = arbiterFee;
+        escrowDepositTime = depositTime;
+        escrowArbiterFee = arbiterFee;
 
-        i_factoryAddress = factoryAddress;
+        escrowArbiter = arbiter;
     }
 
+    /// @dev Throws if called by any account other than escrow factory.
     modifier onlyFactory() {
-        if (msg.sender != i_factoryAddress) {
-            revert Escrow__Only_Factory();
+        if (msg.sender != escrowArbiter) {
+            revert Escrow_Only_Factory();
         }
         _;
     }
 
     /// @dev Throws if called by any account other than buyer.
     modifier onlySeller() {
-        if (msg.sender != i_seller) {
-            revert Escrow__Only_Seller();
+        if (msg.sender != escrowSeller) {
+            revert Escrow_Only_Seller();
         }
         _;
     }
 
     /// @dev Throws if called by any account other than buyer or seller.
     modifier onlyBuyerOrSeller() {
-        if (msg.sender != i_buyer && msg.sender != i_seller) {
-            revert Escrow__OnlyBuyerOrSeller();
+        if (msg.sender != escrowBuyer && msg.sender != escrowSeller) {
+            revert Escrow_Only_Buyer_Or_Seller();
         }
         _;
     }
 
     /// @dev Throws if contract called in State other than one associated for function.
     modifier inState(State expectedState) {
-        if (s_state != expectedState) {
-            revert Escrow__InWrongState(s_state, expectedState);
+        if (escrowState != expectedState) {
+            revert Escrow_In_Wrong_State(escrowState, expectedState);
         }
         _;
     }
@@ -101,78 +106,79 @@ contract Escrow is IEscrow, ReentrancyGuard {
         onlyBuyerOrSeller
         inState(State.Created)
     {
-        s_state = State.Disputed;
+        escrowState = State.Disputed;
         emit Disputed(msg.sender);
     }
 
     function resolveDispute(
         uint256 buyerAward
     ) external onlyFactory nonReentrant inState(State.Disputed) {
-        if (block.timestamp > i_depositTime + 3 days)
+        if (block.timestamp > escrowDepositTime + 3 days)
             revert Escrow_Withdrawal_Already_Processed();
 
-        uint256 tokenBalance = i_tokenContract.balanceOf(address(this));
-        uint256 totalFee = buyerAward + i_arbiterFee; // Reverts on overflow
+        uint256 tokenBalance = escrowTokenContract.balanceOf(address(this));
+        uint256 totalFee = buyerAward + escrowArbiterFee; // Reverts on overflow
 
         if (totalFee > tokenBalance)
-            revert Escrow__Total_Fee_Exceeds_Balance(tokenBalance, totalFee);
+            revert Escrow_Total_Fee_Exceeds_Balance(tokenBalance, totalFee);
 
-        s_state = State.Resolved;
-        emit Resolved(i_buyer, i_seller);
+        escrowState = State.Resolved;
+        emit Resolved(escrowBuyer, escrowSeller);
 
-        if (buyerAward > 0) i_tokenContract.safeTransfer(i_buyer, buyerAward);
+        if (buyerAward > 0)
+            escrowTokenContract.safeTransfer(escrowBuyer, buyerAward);
 
-        if (i_arbiterFee > 0)
-            i_tokenContract.safeTransfer(i_factoryAddress, i_arbiterFee);
+        if (escrowArbiterFee > 0)
+            escrowTokenContract.safeTransfer(escrowArbiter, escrowArbiterFee);
 
-        tokenBalance = i_tokenContract.balanceOf(address(this));
+        tokenBalance = escrowTokenContract.balanceOf(address(this));
 
         if (tokenBalance > 0)
-            i_tokenContract.safeTransfer(i_seller, tokenBalance);
+            escrowTokenContract.safeTransfer(escrowSeller, tokenBalance);
     }
 
     function withdraw() external onlySeller inState(State.Created) {
-        if (block.timestamp < i_depositTime + 3 days)
+        if (block.timestamp < escrowDepositTime + 3 days)
             revert Escrow_Withdrawal_Is_Not_Yet_Available();
 
-        s_state = State.Confirmed;
-        emit Confirmed(i_seller);
+        escrowState = State.Confirmed;
+        emit Confirmed(escrowSeller);
 
-        i_tokenContract.safeTransfer(
-            i_seller,
-            i_tokenContract.balanceOf(address(this))
+        escrowTokenContract.safeTransfer(
+            escrowSeller,
+            escrowTokenContract.balanceOf(address(this))
         );
     }
 
     function getPrice() external view returns (uint256) {
-        return i_price;
+        return escrowPrice;
     }
 
     function getTokenContract() external view returns (IERC20) {
-        return i_tokenContract;
+        return escrowTokenContract;
     }
 
     function getBuyer() external view returns (address) {
-        return i_buyer;
+        return escrowBuyer;
     }
 
     function getSeller() external view returns (address) {
-        return i_seller;
+        return escrowSeller;
     }
 
     function getArbiterFee() external view returns (uint256) {
-        return i_arbiterFee;
+        return escrowArbiterFee;
     }
 
     function getArbiter() external view returns (address) {
-        return i_factoryAddress;
+        return escrowArbiter;
     }
 
     function getState() external view returns (State) {
-        return s_state;
+        return escrowState;
     }
 
     function getDepositTime() external view returns (uint256) {
-        return i_depositTime;
+        return escrowDepositTime;
     }
 }
