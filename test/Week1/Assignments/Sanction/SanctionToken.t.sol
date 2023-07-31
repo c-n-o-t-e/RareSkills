@@ -3,6 +3,7 @@ pragma solidity ^0.8.13;
 
 import "forge-std/console.sol";
 import {Test} from "forge-std/Test.sol";
+import {ISanctionToken} from "../../../../src/Week1/Assignments/Sanction/ISanctionToken.sol";
 import {SanctionToken} from "../../../../src/Week1/Assignments/Sanction/SanctionToken.sol";
 import {IERC1820Registry} from "openzeppelin-contracts/contracts/utils/introspection/IERC1820Registry.sol";
 
@@ -66,7 +67,7 @@ contract SanctionTokenTest is Test {
 
         vm.prank(user);
 
-        vm.expectRevert(SanctionToken.SanctionToken_Sender_Is_Banned.selector);
+        vm.expectRevert(ISanctionToken.SanctionToken_Sender_Is_Banned.selector);
         sanctionToken.send(address(this), 0.01 ether, "");
     }
 
@@ -84,7 +85,7 @@ contract SanctionTokenTest is Test {
         sanctionToken.banAddress(user);
 
         vm.expectRevert(
-            SanctionToken.SanctionToken_Recipient_Is_Banned.selector
+            ISanctionToken.SanctionToken_Recipient_Is_Banned.selector
         );
 
         sanctionToken.send(user, 0.01 ether, "");
