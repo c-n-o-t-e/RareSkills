@@ -27,4 +27,60 @@ contract EscrowFactory is IEscrowFactory {
         }
         _;
     }
+
+    /// @inheritdoc IEscrowFactory
+    /// @dev msg.sender must approve the token contract to spend the price amount before calling this function.
+    /// @dev There is a risk that if a malicious token is used, the dispute process could be manipulated.
+    /// Therefore, careful consideration should be taken when chosing the token.
+    function newEscrow(
+        uint256 price,
+        IERC20 tokenContract,
+        address seller,
+        uint256 arbiterFee,
+        uint256 depositTime,
+        bytes32 salt
+    ) external returns (IEscrow) {
+        address computedAddress = computeEscrowAddress(
+            type(Escrow).creationCode,
+            address(this),
+            uint256(salt),
+            price,
+            tokenContract,
+            msg.sender,
+            seller,
+            arbiterFee,
+            depositTime
+        );
+
+        tokenContract.safeTransferFrom(msg.sender, computedAddress, price);
+
+        Escrow escrow = new Escrow{salt: salt}(
+            price,
+            tokenContract,
+            msg.sender,
+            seller,
+            address(this),
+            arbiterFee,
+            depositTime
+        );
+
+        if (address(escrow) != computedAddress)
+            revert EscrowFactory_Addresses_Differ();
+
+        escrows[address(escrow)] = true;
+
+        emit EscrowCreated(address(escrow), msg.sender, seller);
+        return escrow;
+    }
+
+    /// @inheritdoc IEscrowFactory
+    function resolveDispute(
+        IEscrow tokenContract,
+        uint256 buyerAward
+    ) external onlyOwner {
+        if (!escrows[address(tokenContract)])
+            revert EscrowFactory_AddressNotAnEscrowContract();
+
+        tokenContract.resolveDispute(buyerAward);
+    }
 }
