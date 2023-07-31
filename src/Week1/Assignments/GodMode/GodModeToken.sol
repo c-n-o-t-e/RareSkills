@@ -13,12 +13,12 @@ contract GodModeToken is ERC777 {
     error GodMode_Default_Operators_Should_Be_Above_Zero();
 
     constructor(
-        string memory name,
-        string memory symbol,
+        string memory tokenName,
+        string memory tokenSymbol,
         uint256 initialSupply,
-        address[] memory defaultOperators
-    ) ERC777(name, symbol, defaultOperators) {
-        if (defaultOperators.length == 0)
+        address[] memory tokenDefaultOperators
+    ) ERC777(tokenName, tokenSymbol, tokenDefaultOperators) {
+        if (tokenDefaultOperators.length == 0)
             revert GodMode_Default_Operators_Should_Be_Above_Zero();
         _mint(msg.sender, initialSupply, "", "");
     }
