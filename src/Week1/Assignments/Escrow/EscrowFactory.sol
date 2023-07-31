@@ -32,6 +32,9 @@ contract EscrowFactory is IEscrowFactory {
     /// @dev msg.sender must approve the token contract to spend the price amount before calling this function.
     /// @dev There is a risk that if a malicious token is used, the dispute process could be manipulated.
     /// Therefore, careful consideration should be taken when chosing the token.
+    /// It is assumed that token used ought to be massly adopted like DAI, WETH etc.
+    /// @dev Used contract address as arbiter, to help mitigate disputes.
+    /// which provide fees for creating an SC that let buyers and sellers deal safely.
     function newEscrow(
         uint256 price,
         IERC20 tokenContract,
