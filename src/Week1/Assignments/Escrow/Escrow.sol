@@ -26,4 +26,41 @@ contract Escrow is IEscrow, ReentrancyGuard {
     uint256 private immutable i_arbiterFee;
 
     State private s_state;
+
+    /// @dev Sets the Escrow transaction values for `price`, `tokenContract`, `buyer`, `seller`, `arbiter`, `arbiterFee`. All of
+    /// these values are immutable: they can only be set once during construction and reflect essential deal terms.
+    /// @dev Funds should be sent to this address prior to its deployment, via create2. The constructor checks that the tokens have
+    /// been sent to this address.
+    constructor(
+        uint256 price,
+        IERC20 tokenContract,
+        address buyer,
+        address seller,
+        address factoryAddress,
+        uint256 arbiterFee,
+        uint256 depositTime
+    ) {
+        if (address(tokenContract) == address(0))
+            revert Escrow__TokenZeroAddress();
+
+        if (buyer == address(0)) revert Escrow__BuyerZeroAddress();
+        if (seller == address(0)) revert Escrow__SellerZeroAddress();
+
+        if (arbiterFee >= price)
+            revert Escrow__FeeExceedsPrice(price, arbiterFee);
+
+        if (tokenContract.balanceOf(address(this)) < price)
+            revert Escrow__MustDeployWithTokenBalance();
+
+        i_price = price;
+        i_tokenContract = tokenContract;
+
+        i_buyer = buyer;
+        i_seller = seller;
+
+        i_depositTime = depositTime;
+        i_arbiterFee = arbiterFee;
+
+        i_factoryAddress = factoryAddress;
+    }
 }
