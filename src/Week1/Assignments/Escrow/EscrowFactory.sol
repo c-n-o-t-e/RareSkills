@@ -11,5 +11,20 @@ import {SafeERC20} from "openzeppelin-contracts/contracts/token/ERC20/utils/Safe
 /// @title EscrowFactory
 /// @notice Factory contract for deploying Escrow contracts.
 contract EscrowFactory is IEscrowFactory {
+    using SafeERC20 for IERC20;
 
+    address owner;
+
+    mapping(address => bool) private escrows;
+
+    constructor() {
+        owner = msg.sender;
+    }
+
+    modifier onlyOwner() {
+        if (msg.sender != owner) {
+            revert Escrow__Only_Owner();
+        }
+        _;
+    }
 }
