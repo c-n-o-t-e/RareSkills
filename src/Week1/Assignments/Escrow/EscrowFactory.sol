@@ -7,6 +7,7 @@ import {Escrow} from "./Escrow.sol";
 import {IERC20} from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol";
 
+/// Created on 2023-07-30 9:08
 /// @author c-n-o-t-e
 /// @title EscrowFactory
 /// @notice Factory contract for deploying Escrow contracts.
