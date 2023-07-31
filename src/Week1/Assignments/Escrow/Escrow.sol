@@ -143,4 +143,36 @@ contract Escrow is IEscrow, ReentrancyGuard {
             i_tokenContract.balanceOf(address(this))
         );
     }
+
+    function getPrice() external view returns (uint256) {
+        return i_price;
+    }
+
+    function getTokenContract() external view returns (IERC20) {
+        return i_tokenContract;
+    }
+
+    function getBuyer() external view returns (address) {
+        return i_buyer;
+    }
+
+    function getSeller() external view returns (address) {
+        return i_seller;
+    }
+
+    function getArbiterFee() external view returns (uint256) {
+        return i_arbiterFee;
+    }
+
+    function getArbiter() external view returns (address) {
+        return i_factoryAddress;
+    }
+
+    function getState() external view returns (State) {
+        return s_state;
+    }
+
+    function getDepositTime() external view returns (uint256) {
+        return i_depositTime;
+    }
 }
