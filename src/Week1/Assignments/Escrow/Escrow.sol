@@ -94,4 +94,53 @@ contract Escrow is IEscrow, ReentrancyGuard {
         }
         _;
     }
+
+    /// @inheritdoc IEscrow
+    function initiateDispute()
+        external
+        onlyBuyerOrSeller
+        inState(State.Created)
+    {
+        s_state = State.Disputed;
+        emit Disputed(msg.sender);
+    }
+
+    function resolveDispute(
+        uint256 buyerAward
+    ) external onlyFactory nonReentrant inState(State.Disputed) {
+        if (block.timestamp > i_depositTime + 3 days)
+            revert Escrow_Withdrawal_Already_Processed();
+
+        uint256 tokenBalance = i_tokenContract.balanceOf(address(this));
+        uint256 totalFee = buyerAward + i_arbiterFee; // Reverts on overflow
+
+        if (totalFee > tokenBalance)
+            revert Escrow__Total_Fee_Exceeds_Balance(tokenBalance, totalFee);
+
+        s_state = State.Resolved;
+        emit Resolved(i_buyer, i_seller);
+
+        if (buyerAward > 0) i_tokenContract.safeTransfer(i_buyer, buyerAward);
+
+        if (i_arbiterFee > 0)
+            i_tokenContract.safeTransfer(i_factoryAddress, i_arbiterFee);
+
+        tokenBalance = i_tokenContract.balanceOf(address(this));
+
+        if (tokenBalance > 0)
+            i_tokenContract.safeTransfer(i_seller, tokenBalance);
+    }
+
+    function withdraw() external onlySeller inState(State.Created) {
+        if (block.timestamp < i_depositTime + 3 days)
+            revert Escrow_Withdrawal_Is_Not_Yet_Available();
+
+        s_state = State.Confirmed;
+        emit Confirmed(i_seller);
+
+        i_tokenContract.safeTransfer(
+            i_seller,
+            i_tokenContract.balanceOf(address(this))
+        );
+    }
 }
