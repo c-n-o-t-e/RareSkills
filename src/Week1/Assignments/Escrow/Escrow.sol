@@ -63,4 +63,35 @@ contract Escrow is IEscrow, ReentrancyGuard {
 
         i_factoryAddress = factoryAddress;
     }
+
+    modifier onlyFactory() {
+        if (msg.sender != i_factoryAddress) {
+            revert Escrow__Only_Factory();
+        }
+        _;
+    }
+
+    /// @dev Throws if called by any account other than buyer.
+    modifier onlySeller() {
+        if (msg.sender != i_seller) {
+            revert Escrow__Only_Seller();
+        }
+        _;
+    }
+
+    /// @dev Throws if called by any account other than buyer or seller.
+    modifier onlyBuyerOrSeller() {
+        if (msg.sender != i_buyer && msg.sender != i_seller) {
+            revert Escrow__OnlyBuyerOrSeller();
+        }
+        _;
+    }
+
+    /// @dev Throws if contract called in State other than one associated for function.
+    modifier inState(State expectedState) {
+        if (s_state != expectedState) {
+            revert Escrow__InWrongState(s_state, expectedState);
+        }
+        _;
+    }
 }
