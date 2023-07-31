@@ -11,7 +11,6 @@ pragma solidity ^0.8.18;
 
 import "openzeppelin-contracts/contracts/token/ERC777/ERC777.sol";
 
-/// @dev Upon deploying as show in test defaultOperators should have at least one address.
 contract GodModeToken is ERC777 {
     constructor(
         string memory name,
