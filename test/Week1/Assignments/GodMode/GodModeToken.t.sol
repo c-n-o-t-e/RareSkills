@@ -10,8 +10,8 @@ contract GodModeTokenTest is Test {
     GodModeToken public godModeToken;
 
     address[] defaultOperators;
-    address defaultOperator = _createAddress("defaultOperator");
     address user = _createAddress("user");
+    address defaultOperator = _createAddress("defaultOperator");
 
     IERC1820Registry private _erc1820 =
         IERC1820Registry(0x1820a4B7618BdE71Dce8cdc73aAB6C95905faD24);
@@ -22,6 +22,7 @@ contract GodModeTokenTest is Test {
         keccak256("ERC777TokensRecipient");
 
     function setUp() public {
+        // mock ERC1820Registry contract in foundry
         vm.etch(
             address(0x1820a4B7618BdE71Dce8cdc73aAB6C95905faD24),
             bytes(
