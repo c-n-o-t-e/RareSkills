@@ -83,4 +83,46 @@ contract EscrowFactory is IEscrowFactory {
 
         tokenContract.resolveDispute(buyerAward);
     }
+
+    /// @dev See https://docs.soliditylang.org/en/latest/control-structures.html#salted-contract-creations-create2
+    function computeEscrowAddress(
+        bytes memory byteCode,
+        address deployer,
+        uint256 salt,
+        uint256 price,
+        IERC20 tokenContract,
+        address buyer,
+        address seller,
+        uint256 arbiterFee,
+        uint256 depositTime
+    ) public view returns (address) {
+        address predictedAddress = address(
+            uint160(
+                uint256(
+                    keccak256(
+                        abi.encodePacked(
+                            bytes1(0xff),
+                            deployer,
+                            salt,
+                            keccak256(
+                                abi.encodePacked(
+                                    byteCode,
+                                    abi.encode(
+                                        price,
+                                        tokenContract,
+                                        buyer,
+                                        seller,
+                                        address(this),
+                                        arbiterFee,
+                                        depositTime
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        );
+        return predictedAddress;
+    }
 }
