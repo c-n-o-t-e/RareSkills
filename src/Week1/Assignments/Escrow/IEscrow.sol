@@ -5,20 +5,20 @@ import {IERC20} from "openzeppelin-contracts/contracts/token/ERC20/IERC20.sol";
 
 interface IEscrow {
     /// Errors
-    error Escrow__FeeExceedsPrice(uint256 price, uint256 fee);
-    error Escrow__Only_Seller();
-    error Escrow__Only_Factory();
-    error Escrow__OnlyBuyerOrSeller();
-    error Escrow__Total_Fee_Exceeds_Balance(uint256 balance, uint256 totalFee);
-    error Escrow__InWrongState(State currentState, State expectedState);
-    error Escrow__MustDeployWithTokenBalance();
-    error Escrow__TotalFeeExceedsBalance(uint256 balance, uint256 totalFee);
-    error Escrow__DisputeRequiresArbiter();
-    error Escrow__TokenZeroAddress();
-    error Escrow__BuyerZeroAddress();
-    error Escrow__SellerZeroAddress();
+    error Escrow_Only_Seller();
+    error Escrow_Only_Factory();
+    error Escrow_Token_Zero_Address();
+    error Escrow_Buyer_Zero_Address();
+    error Escrow_Seller_Zero_Address();
+    error Escrow_Only_Buyer_Or_Seller();
+    error Escrow_Arbiter_Zero_Address();
+    error Escrow_Dispute_Requires_Arbiter();
     error Escrow_Withdrawal_Already_Processed();
+    error Escrow_Must_Deploy_With_Token_Balance();
     error Escrow_Withdrawal_Is_Not_Yet_Available();
+    error Escrow_Fee_Exceeds_Price(uint256 price, uint256 fee);
+    error Escrow_In_Wrong_State(State currentState, State expectedState);
+    error Escrow_Total_Fee_Exceeds_Balance(uint256 balance, uint256 totalFee);
 
     event Confirmed(address indexed seller);
     event Disputed(address indexed disputer);
