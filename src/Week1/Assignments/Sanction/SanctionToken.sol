@@ -19,11 +19,11 @@ contract SanctionToken is ERC777, ISanctionToken, AccessControl {
     mapping(address => bool) private _bannedAddresses;
 
     constructor(
-        string memory name,
-        string memory symbol,
+        string memory tokenName,
+        string memory tokenSymbol,
         uint256 initialSupply,
-        address[] memory defaultOperators
-    ) ERC777(name, symbol, defaultOperators) {
+        address[] memory tokenDefaultOperators
+    ) ERC777(tokenName, tokenSymbol, tokenDefaultOperators) {
         _grantRole(ADMIN_ROLE, msg.sender);
         _mint(msg.sender, initialSupply, "", "");
     }
