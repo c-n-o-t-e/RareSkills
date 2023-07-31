@@ -16,13 +16,12 @@ contract EscrowTest is Test {
     bytes32 public constant SALT1 =
         bytes32(uint256(keccak256(abi.encodePacked("test"))));
 
-    uint256 public constant PRICE = 1e18;
-
     address public constant BUYER = address(1);
     address public constant SELLER = address(2);
 
-    uint256 public constant ARBITER_FEE = 1e16;
     uint256 public buyerAward = 0;
+    uint256 public constant PRICE = 1e18;
+    uint256 public constant ARBITER_FEE = 1e16;
 
     // events
     event Confirmed(address indexed seller);
@@ -63,7 +62,7 @@ contract EscrowTest is Test {
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                IEscrow.Escrow__FeeExceedsPrice.selector,
+                IEscrow.Escrow_Fee_Exceeds_Price.selector,
                 PRICE,
                 arbiterFee
             )
@@ -82,7 +81,7 @@ contract EscrowTest is Test {
     function testSellerZeroReverts() public {
         reserveToken.approve(address(escrowFactory), 1 ether);
 
-        vm.expectRevert(IEscrow.Escrow__SellerZeroAddress.selector);
+        vm.expectRevert(IEscrow.Escrow_Seller_Zero_Address.selector);
 
         escrow = escrowFactory.newEscrow(
             PRICE,
@@ -110,7 +109,7 @@ contract EscrowTest is Test {
     }
 
     function testConstructorBuyerZeroReverts() public {
-        vm.expectRevert(IEscrow.Escrow__BuyerZeroAddress.selector);
+        vm.expectRevert(IEscrow.Escrow_Buyer_Zero_Address.selector);
         new Escrow(
             PRICE,
             reserveToken,
@@ -123,7 +122,7 @@ contract EscrowTest is Test {
     }
 
     function testConstructorTokenZeroReverts() public {
-        vm.expectRevert(IEscrow.Escrow__TokenZeroAddress.selector);
+        vm.expectRevert(IEscrow.Escrow_Token_Zero_Address.selector);
         new Escrow(
             PRICE,
             ReserveToken(address(0)),
@@ -135,9 +134,6 @@ contract EscrowTest is Test {
         );
     }
 
-    // /////////////////////
-    // // Modifiers for next tests //
-    // ////////////////////
     modifier escrowDeployed() {
         reserveToken.approve(address(escrowFactory), 1 ether);
 
@@ -152,15 +148,11 @@ contract EscrowTest is Test {
         _;
     }
 
-    // /////////////////////
-    // // Withdraw //
-    // ////////////////////
-
     function testShouldFailWhenNotSellerTriesToWithdraw()
         public
         escrowDeployed
     {
-        vm.expectRevert(IEscrow.Escrow__Only_Seller.selector);
+        vm.expectRevert(IEscrow.Escrow_Only_Seller.selector);
         escrow.withdraw();
     }
 
@@ -169,7 +161,7 @@ contract EscrowTest is Test {
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                IEscrow.Escrow__InWrongState.selector,
+                IEscrow.Escrow_In_Wrong_State.selector,
                 IEscrow.State.Disputed,
                 IEscrow.State.Created
             )
@@ -214,15 +206,11 @@ contract EscrowTest is Test {
         assertEq(contractBalanceAfterTx, 0);
     }
 
-    // /////////////////////
-    // // initiateDispute //
-    // ////////////////////
-
     function testOnlyBuyerOrSellerCanCallInitiateDispute()
         public
         escrowDeployed
     {
-        vm.expectRevert(IEscrow.Escrow__OnlyBuyerOrSeller.selector);
+        vm.expectRevert(IEscrow.Escrow_Only_Buyer_Or_Seller.selector);
         vm.prank(address(333));
         escrow.initiateDispute();
     }
@@ -239,15 +227,11 @@ contract EscrowTest is Test {
         assertEq(uint256(escrow.getState()), uint256(IEscrow.State.Disputed));
     }
 
-    // /////////////////////
-    // // resolveDispute //
-    // ////////////////////
-
     function testOnlyEscrowFactoryCanCallResolveDispute()
         public
         escrowDeployed
     {
-        vm.expectRevert(IEscrow.Escrow__Only_Factory.selector);
+        vm.expectRevert(IEscrow.Escrow_Only_Factory.selector);
         escrow.resolveDispute(buyerAward);
     }
 
@@ -256,7 +240,7 @@ contract EscrowTest is Test {
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                IEscrow.Escrow__InWrongState.selector,
+                IEscrow.Escrow_In_Wrong_State.selector,
                 IEscrow.State.Created,
                 IEscrow.State.Disputed
             )
@@ -271,6 +255,18 @@ contract EscrowTest is Test {
 
         escrow.resolveDispute(buyerAward);
         assertEq(uint256(escrow.getState()), uint256(IEscrow.State.Resolved));
+    }
+
+    function testResolveDisputeShouldFailIfDepositTimeHasPassed()
+        public
+        escrowDeployed
+    {
+        vm.warp(7 days);
+        escrow.initiateDispute();
+        vm.expectRevert(IEscrow.Escrow_Withdrawal_Already_Processed.selector);
+
+        vm.prank(address(escrowFactory));
+        escrow.resolveDispute(buyerAward);
     }
 
     function testResolveDisputeTransfersTokens() public escrowDeployed {
@@ -314,7 +310,7 @@ contract EscrowTest is Test {
 
         vm.expectRevert(
             abi.encodeWithSelector(
-                IEscrow.Escrow__Total_Fee_Exceeds_Balance.selector,
+                IEscrow.Escrow_Total_Fee_Exceeds_Balance.selector,
                 PRICE,
                 disputerBuyerAward + ARBITER_FEE
             )
