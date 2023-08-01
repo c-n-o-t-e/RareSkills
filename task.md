@@ -15,3 +15,7 @@ ERC777 introduces a more complex token transfer mechanism compared to ERC1363, w
 In order to interact with an ERC777 contract you’ve to implement ERC1820 which requires steps of registration unlike ERC1363 that implement ERC165 which when interacted with an ERC1363 contract its more straightforward.
 
 ERC777 callback function calls an external contract via the `_callTokensToSend` hooks before updating balances which can lead to reentrancy attack if not managed properly.
+
+## Why Does The SafeERC20 Program Exist And When Should It Be Used?
+
+It exist as a wrappers around ERC20 operations that throw on failure when the token contract returns false.
