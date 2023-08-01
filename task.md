@@ -13,3 +13,5 @@ ERC1363 aims to provide a more streamlined and user-friendly approach for token 
 ERC777 introduces a more complex token transfer mechanism compared to ERC1363, which may make it harder for developers to understand and implement correctly.
 
 In order to interact with an ERC777 contract you’ve to implement ERC1820 which requires steps of registration unlike ERC1363 that implement ERC165 which when interacted with an ERC1363 contract its more straightforward.
+
+ERC777 callback function calls an external contract via the `_callTokensToSend` hooks before updating balances which can lead to reentrancy attack if not managed properly.
