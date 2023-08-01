@@ -35,15 +35,26 @@ contract BondToken is ERC1363, IERC1363Receiver, IERC1363Spender {
 
     error BondToken_Delay_Period_Not_Passed();
     error BondToken_AcceptedToken_Not_Sender();
+    error BondToken_FirstPurchaseMustTenTokenAndBelow();
     error BondToken_Number_Of_Tokens_To_Buy_Cannot_Be_Zero();
     error BondToken_Sent_Funds_Not_Enough_To_Buy_Token_Amount_User_Desire();
 
     constructor(address token) ERC20("BondToken", "BT") {
+        /// @dev if totalSupply is 0 buy price will be same as sell price.
+        /// Trying to prevent the first user buying a lot of token at sell price.
         acceptedToken = ERC1363(token);
     }
 
-    function calculatePrice() public view returns (uint256) {
-        return INITIAL_PRICE + (totalSupply() / 100);
+    function calculateBuyPrice(
+        uint256 amountToBuy
+    ) public view returns (uint256) {
+        return INITIAL_PRICE + ((totalSupply() + amountToBuy) / 100);
+    }
+
+    function calculateSalePrice(
+        uint256 amountToSell
+    ) public view returns (uint256) {
+        return INITIAL_PRICE + ((totalSupply() - amountToSell) / 100);
     }
 
     function onTransferReceived(
@@ -67,7 +78,9 @@ contract BondToken is ERC1363, IERC1363Receiver, IERC1363Spender {
 
             emit TokensReceived(spender, sender, numberOfTokensToBuy);
         } else if (_msgSender() == address(this)) {
-            uint256 amountToSend = (calculatePrice() * amount) / 1e18;
+            uint256 amountToSend = (calculateSalePrice(amount) * amount) / 1e18;
+
+            _burn(address(this), amount);
             acceptedToken.safeTransfer(sender, amountToSend);
 
             emit TokensReceived(spender, sender, amount);
@@ -103,21 +116,23 @@ contract BondToken is ERC1363, IERC1363Receiver, IERC1363Spender {
             super.supportsInterface(interfaceId);
     }
 
+    function _validatePurchase(
+        bytes memory data
+    ) internal view returns (uint256 amount_, uint256 numberOfTokensToBuy) {
+        numberOfTokensToBuy = abi.decode(data, (uint256));
+        amount_ =
+            (numberOfTokensToBuy * calculateBuyPrice(numberOfTokensToBuy)) /
+            1e18;
+
+        if (numberOfTokensToBuy == 0)
+            revert BondToken_Number_Of_Tokens_To_Buy_Cannot_Be_Zero();
+    }
+
     function _approvalReceived(
         address sender,
         bytes memory data
     ) internal virtual {
         (uint256 amount, ) = _validatePurchase(data);
         acceptedToken.transferFromAndCall(sender, address(this), amount, data);
-    }
-
-    function _validatePurchase(
-        bytes memory data
-    ) internal view returns (uint256 amount_, uint256 numberOfTokensToBuy) {
-        numberOfTokensToBuy = abi.decode(data, (uint256));
-        amount_ = (numberOfTokensToBuy * calculatePrice()) / 1e18;
-
-        if (numberOfTokensToBuy == 0)
-            revert BondToken_Number_Of_Tokens_To_Buy_Cannot_Be_Zero();
     }
 }
