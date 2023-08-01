@@ -16,6 +16,12 @@ In order to interact with an ERC777 contract you’ve to implement ERC1820 which
 
 ERC777 callback function calls an external contract via the `_callTokensToSend` hooks before updating balances which can lead to reentrancy attack if not managed properly.
 
-## Why Does The SafeERC20 Program Exist And When Should It Be Used?
+## Why Does The SafeERC20 Program Exist?
 
 It exist as a wrappers around ERC20 operations that throw on failure when the token contract returns false.
+
+## When Should It Be Used?
+
+When Interacting with External ERC20 Tokens: If your smart contract interacts with external ERC20 tokens (i.e., tokens from other contracts), using SafeERC20 can help mitigate risks and ensure secure operations.
+
+In Complex Contracts: If your smart contract is complex and involves multiple token transfers or calculations, using SafeERC20 can provide an extra layer of safety and reduce the chances of errors.
