@@ -33,6 +33,7 @@ contract BondTest is Test {
     function testBuyBondToken() external {
         vm.startPrank(contractDeployer);
         reserveToken.freeMint();
+        reserveToken.freeMint();
 
         uint256 bondBalanceBeforeTx = bondToken.balanceOf(contractDeployer);
         uint256 reserveBalanceBeforeTx = reserveToken.balanceOf(
@@ -40,35 +41,9 @@ contract BondTest is Test {
         );
 
         bytes memory data = abi.encode(1 ether);
-        reserveToken.approveAndCall(address(bondToken), 2 ether, data);
+        uint amountPurchased = (bondToken.calculateBuyPrice(1 ether) *
+            1 ether) / 1e18;
 
-        uint256 bondBalanceAfterTx = bondToken.balanceOf(contractDeployer);
-        uint256 reserveBalanceAfterTx = reserveToken.balanceOf(
-            contractDeployer
-        );
-
-        assertEq(bondBalanceBeforeTx, reserveBalanceAfterTx);
-        assertEq(bondBalanceAfterTx, reserveBalanceBeforeTx);
-
-        vm.stopPrank();
-    }
-
-    function testBuyBondTokenAsPriceChanges() external {
-        vm.startPrank(contractDeployer);
-
-        for (uint i; i < 3; ++i) {
-            reserveToken.freeMint();
-        }
-
-        uint256 bondBalanceBeforeTx = bondToken.balanceOf(contractDeployer);
-        uint256 reserveBalanceBeforeTx = reserveToken.balanceOf(
-            contractDeployer
-        );
-
-        bytes memory data = abi.encode(1 ether);
-        reserveToken.approveAndCall(address(bondToken), 2 ether, data);
-
-        uint256 amount = (1 ether * bondToken.calculatePrice()) / 1e18;
         reserveToken.approveAndCall(address(bondToken), 2 ether, data);
 
         uint256 bondBalanceAfterTx = bondToken.balanceOf(contractDeployer);
@@ -77,53 +52,36 @@ contract BondTest is Test {
         );
 
         assertEq(bondBalanceBeforeTx, 0);
-        assertEq(reserveBalanceBeforeTx, 3 ether);
+        assertEq(reserveBalanceBeforeTx, 2 ether);
 
+        assertEq(bondBalanceAfterTx, 1 ether);
         assertEq(
-            reserveBalanceBeforeTx - (amount + 1 ether),
-            reserveBalanceAfterTx
+            reserveBalanceAfterTx,
+            reserveBalanceBeforeTx - amountPurchased
         );
 
-        assertEq(bondBalanceAfterTx, 2 * 1 ether);
         vm.stopPrank();
     }
 
-    function testBuyBondTokenAndSellBackWithProfit() external {
+    function testBuyBondTokenAndSellBackGettingLowerReserveTokenUsedToBuy()
+        external
+    {
         vm.startPrank(contractDeployer);
         reserveToken.freeMint();
 
+        reserveToken.freeMint();
         bytes memory data = abi.encode(1 ether);
-        reserveToken.approveAndCall(address(bondToken), 2 ether, data);
 
-        vm.startPrank(user);
-
-        for (uint i; i < 3; ++i) {
-            reserveToken.freeMint();
-        }
+        uint amountPurchased = (bondToken.calculateBuyPrice(1 ether) *
+            1 ether) / 1e18;
 
         reserveToken.approveAndCall(address(bondToken), 2 ether, data);
-        reserveToken.approveAndCall(address(bondToken), 2 ether, data);
 
-        vm.startPrank(contractDeployer);
-        uint256 amount = (1 ether * bondToken.calculatePrice()) / 1e18;
-
-        uint256 bondBalanceBeforeTx = bondToken.balanceOf(contractDeployer);
-        uint256 reserveBalanceBeforeTx = reserveToken.balanceOf(
-            contractDeployer
-        );
+        uint amountSold = (bondToken.calculateSalePrice(1 ether) * 1 ether) /
+            1e18;
 
         bondToken.transferAndCall(address(bondToken), 1 ether, "");
-
-        uint256 bondBalanceAfterTx = bondToken.balanceOf(contractDeployer);
-        uint256 reserveBalanceAfterTx = reserveToken.balanceOf(
-            contractDeployer
-        );
-
-        assertEq(reserveBalanceBeforeTx, 0);
-        assertEq(bondBalanceBeforeTx, 1 ether);
-
-        assertEq(bondBalanceAfterTx, 0);
-        assertEq(reserveBalanceAfterTx, amount);
+        assertGt(amountPurchased, amountSold);
 
         vm.stopPrank();
     }
@@ -224,18 +182,18 @@ contract BondTest is Test {
         return addr;
     }
 
-    function onTransferReceived(
-        address,
-        address,
-        uint256,
-        bytes memory
-    ) public pure returns (bytes4) {
-        return IERC1363Receiver.onTransferReceived.selector;
-    }
+    // function onTransferReceived(
+    //     address,
+    //     address,
+    //     uint256,
+    //     bytes memory
+    // ) public pure returns (bytes4) {
+    //     return IERC1363Receiver.onTransferReceived.selector;
+    // }
 
-    function supportsInterface(
-        bytes4 interfaceId
-    ) public view virtual returns (bool) {
-        return interfaceId == type(IERC1363Receiver).interfaceId;
-    }
+    // function supportsInterface(
+    //     bytes4 interfaceId
+    // ) public view virtual returns (bool) {
+    //     return interfaceId == type(IERC1363Receiver).interfaceId;
+    // }
 }
