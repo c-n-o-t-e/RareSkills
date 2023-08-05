@@ -12,6 +12,11 @@ import "openzeppelin-contracts/contracts/token/common/ERC2981.sol";
 /// @author c-n-o-t-e
 
 contract NFTRoyalty is ERC721, ERC2981 {
+    uint8 public constant MAX_SUPPLY = 20;
+    uint96 public constant ROYALTY_REWARD_RATE = 250;
+
+    event MintedToken(uint256 tokenId);
+
     constructor(
         string memory tokenName,
         string memory tokenSymbol
@@ -21,6 +26,7 @@ contract NFTRoyalty is ERC721, ERC2981 {
 
     function mintToken(uint256 tokenId) external {
         _safeMint(msg.sender, tokenId);
+        emit MintedToken(tokenId);
     }
 
     function supportsInterface(
