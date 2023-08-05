@@ -19,6 +19,10 @@ contract NFTRoyalty is ERC721, ERC2981 {
         _setDefaultRoyalty(msg.sender, ROYALTY_REWARD_RATE);
     }
 
+    function mintToken(uint256 tokenId) external {
+        _safeMint(msg.sender, tokenId);
+    }
+
     function supportsInterface(
         bytes4 interfaceId
     ) public view virtual override(ERC721, ERC2981) returns (bool) {
