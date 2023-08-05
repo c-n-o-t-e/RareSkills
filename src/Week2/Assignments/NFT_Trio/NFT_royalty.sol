@@ -15,7 +15,9 @@ contract NFTRoyalty is ERC721, ERC2981 {
     constructor(
         string memory tokenName,
         string memory tokenSymbol
-    ) ERC721(tokenName, tokenSymbol) {}
+    ) ERC721(tokenName, tokenSymbol) {
+        _setDefaultRoyalty(msg.sender, ROYALTY_REWARD_RATE);
+    }
 
     function supportsInterface(
         bytes4 interfaceId
