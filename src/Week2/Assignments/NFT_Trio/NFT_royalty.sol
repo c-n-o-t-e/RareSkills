@@ -13,9 +13,12 @@ import "openzeppelin-contracts/contracts/token/common/ERC2981.sol";
 
 contract NFTRoyalty is ERC721, ERC2981 {
     uint8 public constant MAX_SUPPLY = 20;
+    uint64 public constant NFT_PRICE = 1 ether;
     uint96 public constant ROYALTY_REWARD_RATE = 250;
 
     event MintedToken(uint256 tokenId);
+
+    error NFTRoyalty_Price_Below_Sale_Price();
 
     constructor(
         string memory tokenName,
@@ -24,7 +27,8 @@ contract NFTRoyalty is ERC721, ERC2981 {
         _setDefaultRoyalty(msg.sender, ROYALTY_REWARD_RATE);
     }
 
-    function mintToken(uint256 tokenId) external {
+    function mintToken(uint256 tokenId) external payable {
+        if (msg.value < NFT_PRICE) revert NFTRoyalty_Price_Below_Sale_Price();
         _safeMint(msg.sender, tokenId);
         emit MintedToken(tokenId);
     }
