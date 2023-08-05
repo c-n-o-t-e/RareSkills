@@ -29,7 +29,15 @@ contract NFTRoyalty is ERC721, ERC2981 {
 
     function mintToken(uint256 tokenId) external payable {
         if (msg.value < NFT_PRICE) revert NFTRoyalty_Price_Below_Sale_Price();
-        _safeMint(msg.sender, tokenId);
+        _safeMint(_msgSender(), tokenId);
+
+        (address royaltyReceiver, uint256 royaltyAmount) = royaltyInfo(
+            0,
+            NFT_PRICE
+        );
+
+        payable(royaltyReceiver).transfer(royaltyAmount);
+
         emit MintedToken(tokenId);
     }
 
