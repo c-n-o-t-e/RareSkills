@@ -4,7 +4,7 @@ pragma solidity ^0.8.13;
 import "erc1363-payable-token/contracts/token/ERC1363/ERC1363.sol";
 
 contract ReserveToken is ERC1363 {
-    address owner;
+    address public owner;
 
     constructor() ERC20("ReserveToken", "RT") {
         owner = msg.sender;
