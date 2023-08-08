@@ -3,42 +3,64 @@
 pragma solidity ^0.8.18;
 
 import "forge-std/console.sol";
+import "openzeppelin-contracts/contracts/utils/Counters.sol";
+import "openzeppelin-contracts/contracts/access/Ownable2Step.sol";
 import "openzeppelin-contracts/contracts/token/ERC721/ERC721.sol";
 import "openzeppelin-contracts/contracts/token/common/ERC2981.sol";
+import "openzeppelin-contracts/contracts/utils/structs/BitMaps.sol";
+import "openzeppelin-contracts/contracts/utils/cryptography/MerkleProof.sol";
 
-/// Created on 2023-07-30 20:00
+/// Created on 2023-08-05 2:46
 /// @notice A smart contract that lets defaultOperators send tokens between users freely.
 /// @title GodModeToken
 /// @author c-n-o-t-e
 
-contract NFTRoyalty is ERC721, ERC2981 {
-    uint8 public constant MAX_SUPPLY = 20;
-    uint64 public constant NFT_PRICE = 1 ether;
-    uint96 public constant ROYALTY_REWARD_RATE = 250;
+contract NFTRoyalty is ERC721, ERC2981, Ownable2Step {
+    using BitMaps for BitMaps.BitMap;
+    using Counters for Counters.Counter;
+
+    BitMaps.BitMap private _bits;
+    Counters.Counter private _id;
+
+    uint96 public constant ROYALTY_REWARD_RATE = 250; // 2.5%
+
+    uint256 private _royaltyEarned;
+    uint256 public constant MAX_SUPPLY = 20;
+
+    uint256 public constant NFT_PRICE = 1 ether;
+    uint256 public constant MERKLE_USER_DISCOUNT = 1000; // 10%
+
+    bytes32 public immutable merkleRoot;
 
     event MintedToken(uint256 tokenId);
 
-    error NFTRoyalty_Price_Below_Sale_Price();
-
     constructor(
+        bytes32 tokenMerkleRoot,
         string memory tokenName,
         string memory tokenSymbol
     ) ERC721(tokenName, tokenSymbol) {
+        merkleRoot = tokenMerkleRoot;
         _setDefaultRoyalty(msg.sender, ROYALTY_REWARD_RATE);
     }
 
-    function mintToken(uint256 tokenId) external payable {
+    modifier maxSupply() {
+        if (_id.current() + 1 > MAX_SUPPLY)
+            revert NFTRoyalty_Max_Supply_Reached();
+        _;
+    }
+
+    // TODO check NFT_PRICE gas usage, use a modifier for checks
+    function mintToken() external payable maxSupply {
         if (msg.value < NFT_PRICE) revert NFTRoyalty_Price_Below_Sale_Price();
-        _safeMint(_msgSender(), tokenId);
+        _id.increment();
 
-        (address royaltyReceiver, uint256 royaltyAmount) = royaltyInfo(
-            0,
-            NFT_PRICE
-        );
+        _safeMint(_msgSender(), _id.current());
 
-        payable(royaltyReceiver).transfer(royaltyAmount);
+        (, uint256 royaltyAmount) = royaltyInfo(0, NFT_PRICE);
 
-        emit MintedToken(tokenId);
+        _royaltyEarned += royaltyAmount;
+
+        emit MintedToken(_id.current());
     }
 
     function supportsInterface(
