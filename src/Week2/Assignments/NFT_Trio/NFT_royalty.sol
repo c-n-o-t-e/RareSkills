@@ -97,9 +97,42 @@ contract NFTRoyalty is ERC721, ERC2981, Ownable2Step {
         emit MintedToken(_id.current());
     }
 
+    function withdrawRoyalty() external {
+        (address royaltyAddress, ) = royaltyInfo(0, 0);
+
+        if (msg.sender == royaltyAddress)
+            revert NFTRoyalty_Only_RoyaltyAddress_Can_Withdraw_Royalties();
+
+        uint256 royaltyEarned = _royaltyEarned;
+
+        if (royaltyEarned == 0)
+            revert NFTRoyalty_No_Current_Royalty_Available_To_Withdraw();
+
+        _royaltyEarned = 0;
+
+        payable(royaltyAddress).transfer(royaltyEarned);
+    }
+
+    function withdrawETH(uint256 amount) external onlyOwner {
+        if (amount > address(this).balance - _royaltyEarned)
+            revert NFTRoyalty_Amount_Above_Contract_Balance();
+
+        payable(msg.sender).transfer(amount);
+    }
+
     function supportsInterface(
         bytes4 interfaceId
     ) public view virtual override(ERC721, ERC2981) returns (bool) {
         return super.supportsInterface(interfaceId);
+    }
+
+    function _verifyProof(
+        uint256 index,
+        bytes32[] calldata merkleProof
+    ) private view {
+        bytes32 node = keccak256(abi.encodePacked(index, _msgSender()));
+
+        if (!MerkleProof.verify(merkleProof, merkleRoot, node))
+            revert NFTRoyalty_Invalid_Proof();
     }
 }
