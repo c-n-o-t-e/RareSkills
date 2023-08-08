@@ -34,6 +34,14 @@ contract NFTRoyalty is ERC721, ERC2981, Ownable2Step {
 
     event MintedToken(uint256 tokenId);
 
+    error NFTRoyalty_Invalid_Proof();
+    error NFTRoyalty_Max_Supply_Reached();
+    error NFTRoyalty_Discount_Already_Used();
+    error NFTRoyalty_Price_Below_Sale_Price();
+    error NFTRoyalty_Amount_Above_Contract_Balance();
+    error NFTRoyalty_No_Current_Royalty_Available_To_Withdraw();
+    error NFTRoyalty_Only_RoyaltyAddress_Can_Withdraw_Royalties();
+
     constructor(
         bytes32 tokenMerkleRoot,
         string memory tokenName,
@@ -57,6 +65,32 @@ contract NFTRoyalty is ERC721, ERC2981, Ownable2Step {
         _safeMint(_msgSender(), _id.current());
 
         (, uint256 royaltyAmount) = royaltyInfo(0, NFT_PRICE);
+
+        _royaltyEarned += royaltyAmount;
+
+        emit MintedToken(_id.current());
+    }
+
+    function mintTokenWithDiscount(
+        uint256 index,
+        bytes32[] calldata merkleProof
+    ) external payable maxSupply {
+        if (_bits.get(index)) revert NFTRoyalty_Discount_Already_Used();
+
+        uint256 afterAppliedDiscount = (NFT_PRICE * MERKLE_USER_DISCOUNT) /
+            10000;
+
+        if (msg.value < afterAppliedDiscount)
+            revert NFTRoyalty_Price_Below_Sale_Price();
+
+        _id.increment();
+
+        _verifyProof(index, merkleProof);
+
+        _bits.set(index);
+        _safeMint(_msgSender(), _id.current());
+
+        (, uint256 royaltyAmount) = royaltyInfo(0, afterAppliedDiscount);
 
         _royaltyEarned += royaltyAmount;
 
