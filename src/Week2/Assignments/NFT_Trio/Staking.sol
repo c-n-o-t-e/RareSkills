@@ -30,6 +30,27 @@ contract Staking is IERC721Receiver {
         token = tokenAddress;
     }
 
+    modifier onlyNftOwner(uint256 tokenId) {
+        if (nftHolder[tokenId] != msg.sender) revert Staking_Not_NFT_Owner();
+        _;
+    }
+
+    function claimReward(uint256 tokenId) external onlyNftOwner(tokenId) {
+        if (claimLockUp[tokenId] > block.timestamp)
+            revert Staking_Lockup_Duration_Not_Reached();
+
+        claimLockUp[tokenId] = block.timestamp + CLAIMING_DURATION;
+        token.mint(msg.sender, AMOUNT_TO_CLAIM);
+
+        emit RewardClaimed(tokenId);
+    }
+
+    function withdrawNFT(uint256 tokenId) external onlyNftOwner(tokenId) {
+        delete nftHolder[tokenId];
+        nft.safeTransferFrom(address(this), msg.sender, tokenId);
+        emit NFTWithdrawn(tokenId);
+    }
+
     function onERC721Received(
         address,
         address from,
