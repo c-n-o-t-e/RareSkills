@@ -11,8 +11,8 @@ import "openzeppelin-contracts/contracts/utils/structs/BitMaps.sol";
 import "openzeppelin-contracts/contracts/utils/cryptography/MerkleProof.sol";
 
 /// Created on 2023-08-05 2:46
-/// @notice A smart contract that lets defaultOperators send tokens between users freely.
-/// @title GodModeToken
+/// @notice A smart contract that lets.......
+/// @title NFTRoyalty
 /// @author c-n-o-t-e
 
 contract NFTRoyalty is ERC721, ERC2981, Ownable2Step {

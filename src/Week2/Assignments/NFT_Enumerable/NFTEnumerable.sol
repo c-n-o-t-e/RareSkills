@@ -7,7 +7,7 @@ import "openzeppelin-contracts/contracts/token/ERC721/extensions/ERC721Enumerabl
 
 /// Created on 2023-08-05 2:46
 /// @notice A smart contract that lets defaultOperators send tokens between users freely.
-/// @title GodModeToken
+/// @title NFTEnumerable
 /// @author c-n-o-t-e
 
 contract NFTEnumerable is ERC721Enumerable {
