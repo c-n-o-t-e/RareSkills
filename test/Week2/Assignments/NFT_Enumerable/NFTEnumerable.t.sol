@@ -58,14 +58,6 @@ contract NFTEnumerableTest is Test {
         }
     }
 
-    function _createAddress(string memory name) internal returns (address) {
-        address addr = address(
-            uint160(uint256(keccak256(abi.encodePacked(name))))
-        );
-        vm.label(addr, name);
-        return addr;
-    }
-
     function getRandomNumbers() public view returns (uint256[20] memory id) {
         uint256 nonce;
         for (nonce; nonce < 20; ++nonce) {
@@ -81,5 +73,13 @@ contract NFTEnumerableTest is Test {
             );
             id[nonce] = (randomSeed % 6) + 1;
         }
+    }
+
+    function _createAddress(string memory name) internal returns (address) {
+        address addr = address(
+            uint160(uint256(keccak256(abi.encodePacked(name))))
+        );
+        vm.label(addr, name);
+        return addr;
     }
 }
