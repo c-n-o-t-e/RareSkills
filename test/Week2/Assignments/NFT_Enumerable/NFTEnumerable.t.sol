@@ -33,7 +33,7 @@ contract NFTEnumerableTest is Test {
         primeNumbers = new PrimeNumbers(nftEnumerable);
     }
 
-    function testTransfer() public {
+    function testCountPrimeTokens() public {
         for (uint i; i < 20; ++i) {
             uint tokenCount = nftEnumerable.balanceOf((_nftHolders[i]));
 
