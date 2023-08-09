@@ -44,7 +44,7 @@ contract PrimeNumbers {
 
         for (uint256 i = 0; i < tokenCount; i++) {
             uint256 tokenId = _nftCollection.tokenOfOwnerByIndex(owner, i);
-            if (isPrime(tokenId)) {
+            if (_isPrime(tokenId)) {
                 primeCount++;
             }
         }
