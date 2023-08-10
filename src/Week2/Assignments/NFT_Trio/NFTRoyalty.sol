@@ -24,11 +24,14 @@ contract NFTRoyalty is ERC721, ERC2981, Ownable2Step {
 
     uint96 public constant ROYALTY_REWARD_RATE = 250; // 2.5%
 
-    uint256 private _royaltyEarned;
+    uint256 public _royaltyEarned;
     uint256 public constant MAX_SUPPLY = 20;
 
     uint256 public constant NFT_PRICE = 1 ether;
     uint256 public constant MERKLE_USER_DISCOUNT = 1000; // 10%
+
+    uint256 public constant DISCOUNT_PRICE =
+        NFT_PRICE - ((NFT_PRICE * MERKLE_USER_DISCOUNT) / 10000);
 
     bytes32 public immutable merkleRoot;
 
@@ -57,16 +60,24 @@ contract NFTRoyalty is ERC721, ERC2981, Ownable2Step {
         _;
     }
 
+    modifier checkSalesPrice(bool withDiscount) {
+        if (withDiscount) {
+            if (msg.value < DISCOUNT_PRICE)
+                revert NFTRoyalty_Price_Below_Sale_Price();
+        } else {
+            if (msg.value < NFT_PRICE)
+                revert NFTRoyalty_Price_Below_Sale_Price();
+        }
+        _;
+    }
+
     // TODO check NFT_PRICE gas usage, use a modifier for checks
-    function mintToken() external payable maxSupply {
-        if (msg.value < NFT_PRICE) revert NFTRoyalty_Price_Below_Sale_Price();
+    function mintToken() external payable maxSupply checkSalesPrice(false) {
         _id.increment();
-
-        _safeMint(_msgSender(), _id.current());
-
         (, uint256 royaltyAmount) = royaltyInfo(0, NFT_PRICE);
 
         _royaltyEarned += royaltyAmount;
+        _safeMint(_msgSender(), _id.current());
 
         emit MintedToken(_id.current());
     }
@@ -74,33 +85,24 @@ contract NFTRoyalty is ERC721, ERC2981, Ownable2Step {
     function mintTokenWithDiscount(
         uint256 index,
         bytes32[] calldata merkleProof
-    ) external payable maxSupply {
+    ) external payable maxSupply checkSalesPrice(true) {
         if (_bits.get(index)) revert NFTRoyalty_Discount_Already_Used();
-
-        uint256 afterAppliedDiscount = (NFT_PRICE * MERKLE_USER_DISCOUNT) /
-            10000;
-
-        if (msg.value < afterAppliedDiscount)
-            revert NFTRoyalty_Price_Below_Sale_Price();
-
         _id.increment();
 
         _verifyProof(index, merkleProof);
-
         _bits.set(index);
-        _safeMint(_msgSender(), _id.current());
 
-        (, uint256 royaltyAmount) = royaltyInfo(0, afterAppliedDiscount);
-
+        (, uint256 royaltyAmount) = royaltyInfo(0, DISCOUNT_PRICE);
         _royaltyEarned += royaltyAmount;
 
+        _safeMint(_msgSender(), _id.current());
         emit MintedToken(_id.current());
     }
 
     function withdrawRoyalty() external {
         (address royaltyAddress, ) = royaltyInfo(0, 0);
 
-        if (msg.sender == royaltyAddress)
+        if (msg.sender != royaltyAddress)
             revert NFTRoyalty_Only_RoyaltyAddress_Can_Withdraw_Royalties();
 
         uint256 royaltyEarned = _royaltyEarned;
@@ -130,7 +132,8 @@ contract NFTRoyalty is ERC721, ERC2981, Ownable2Step {
         uint256 index,
         bytes32[] calldata merkleProof
     ) private view {
-        bytes32 node = keccak256(abi.encodePacked(index, _msgSender()));
+        uint amount = 0;
+        bytes32 node = keccak256(abi.encodePacked(index, _msgSender(), amount));
 
         if (!MerkleProof.verify(merkleProof, merkleRoot, node))
             revert NFTRoyalty_Invalid_Proof();
