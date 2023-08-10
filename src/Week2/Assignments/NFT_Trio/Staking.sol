@@ -5,7 +5,7 @@ import "openzeppelin-contracts/contracts/token/ERC721/IERC721.sol";
 import "openzeppelin-contracts/contracts/token/ERC721/IERC721Receiver.sol";
 
 /// Created on 2023-08-06 9:34
-/// @notice A smart contract that lets.......
+/// @notice A smart contract that lets users stake their NFT and withdraw reward token every 24 hrs.
 /// @title Staking
 /// @author c-n-o-t-e
 

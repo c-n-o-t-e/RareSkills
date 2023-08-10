@@ -6,7 +6,7 @@ import "forge-std/console.sol";
 import "openzeppelin-contracts/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
 
 /// Created on 2023-08-07 6:33
-/// @notice A smart contract that lets defaultOperators send tokens between users freely.
+/// @notice A smart contract used to get prime numbers token Id held by NFT holders.
 /// @title PrimeNumbers
 /// @author c-n-o-t-e
 

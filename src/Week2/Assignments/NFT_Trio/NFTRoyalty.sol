@@ -11,7 +11,7 @@ import "openzeppelin-contracts/contracts/utils/structs/BitMaps.sol";
 import "openzeppelin-contracts/contracts/utils/cryptography/MerkleProof.sol";
 
 /// Created on 2023-08-05 2:46
-/// @notice A smart contract that lets.......
+/// @notice A smart contract that uses ERC2981 to give NFT creator royalty fees, uses merkle tree to give users mint discount.
 /// @title NFTRoyalty
 /// @author c-n-o-t-e
 
@@ -71,7 +71,6 @@ contract NFTRoyalty is ERC721, ERC2981, Ownable2Step {
         _;
     }
 
-    // TODO check NFT_PRICE gas usage, use a modifier for checks
     function mintToken() external payable maxSupply checkSalesPrice(false) {
         _id.increment();
         (, uint256 royaltyAmount) = royaltyInfo(0, NFT_PRICE);
