@@ -25,9 +25,9 @@ contract Staking is IERC721Receiver {
     error Staking_Not_NFT_Owner();
     error Staking_Lockup_Duration_Not_Reached();
 
-    constructor(IRewardToken tokenAddress, IERC721 nftAddress) {
-        nft = nftAddress;
-        token = tokenAddress;
+    constructor(address tokenAddress, address nftAddress) {
+        nft = IERC721(nftAddress);
+        token = IRewardToken(tokenAddress);
     }
 
     modifier onlyNftOwner(uint256 tokenId) {
