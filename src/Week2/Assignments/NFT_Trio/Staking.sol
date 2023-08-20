@@ -23,6 +23,7 @@ contract Staking is IERC721Receiver {
     event RewardClaimed(uint256 tokenId);
 
     error Staking_Not_NFT_Owner();
+    error Only_Accepted_NFT_Can_Stake();
     error Staking_Lockup_Duration_Not_Reached();
 
     constructor(address tokenAddress, address nftAddress) {
@@ -57,7 +58,9 @@ contract Staking is IERC721Receiver {
         uint256 tokenId,
         bytes calldata
     ) external returns (bytes4) {
+        if (msg.sender != address(nft)) revert Only_Accepted_NFT_Can_Stake();
         nftHolder[tokenId] = from;
+
         claimLockUp[tokenId] = block.timestamp + CLAIMING_DURATION;
         return IERC721Receiver.onERC721Received.selector;
     }
