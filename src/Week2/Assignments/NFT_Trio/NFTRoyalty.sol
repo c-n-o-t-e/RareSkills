@@ -118,7 +118,7 @@ contract NFTRoyalty is ERC721, ERC2981, Ownable2Step {
         if (amount > address(this).balance - _royaltyEarned)
             revert NFTRoyalty_Amount_Above_Contract_Balance();
 
-        payable(msg.sender).transfer(amount);
+        Address.sendValue(payable(msg.sender), amount);
     }
 
     function supportsInterface(
