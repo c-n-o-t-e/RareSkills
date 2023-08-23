@@ -4,7 +4,7 @@ pragma solidity 0.8.19;
 import {Test} from "forge-std/Test.sol";
 import {console} from "forge-std/console.sol";
 import "openzeppelin-contracts/contracts/token/ERC721/IERC721Receiver.sol";
-import {Overmint1} from "../../../../src/Week2/CTF/Overmint1.sol";
+import {Overmint1} from "../../../src/Week2/CTF/Overmint1.sol";
 
 contract Overmint1Test is Test, IERC721Receiver {
     Overmint1 public overmint1;

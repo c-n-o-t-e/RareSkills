@@ -3,8 +3,8 @@ pragma solidity 0.8.19;
 
 import "forge-std/console.sol";
 import {Test} from "forge-std/Test.sol";
-import {ReserveToken} from "../../../../src/Week1/Bond/ReserveToken.sol";
-import {BondToken, ERC165Checker} from "../../../../src/Week1/Bond/BondToken.sol";
+import {ReserveToken} from "../../../src/Week1/Bond/ReserveToken.sol";
+import {BondToken, ERC165Checker} from "../../../src/Week1/Bond/BondToken.sol";
 
 import {IERC1363Receiver} from "erc1363-payable-token/contracts/token/ERC1363/IERC1363Receiver.sol";
 import {ERC165Checker} from "openzeppelin-contracts/contracts/utils/introspection/ERC165Checker.sol";

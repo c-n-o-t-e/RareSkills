@@ -2,7 +2,7 @@
 pragma solidity 0.8.19;
 
 import {Test} from "forge-std/Test.sol";
-import {Overmint2} from "../../../../src/Week2/CTF/Overmint2.sol";
+import {Overmint2} from "../../../src/Week2/CTF/Overmint2.sol";
 
 contract Overmint2Test is Test {
     Overmint2 public overmint2;

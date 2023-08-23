@@ -4,7 +4,7 @@ pragma solidity 0.8.19;
 import {Test} from "forge-std/Test.sol";
 import {console} from "forge-std/console.sol";
 import "openzeppelin-contracts/contracts/token/ERC721/IERC721Receiver.sol";
-import {NFTRoyalty} from "../../../../src/Week2/NFT_Trio/NFTRoyalty.sol";
+import {NFTRoyalty} from "../../../src/Week2/NFT_Trio/NFTRoyalty.sol";
 
 contract NFTRoyaltyTest is Test, IERC721Receiver {
     NFTRoyalty public nftRoyalty;

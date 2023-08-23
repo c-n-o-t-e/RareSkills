@@ -3,7 +3,7 @@ pragma solidity ^0.8.13;
 
 import {console} from "forge-std/console.sol";
 import {Test} from "forge-std/Test.sol";
-import {GodModeToken} from "../../../../src/Week1/GodMode/GodModeToken.sol";
+import {GodModeToken} from "../../../src/Week1/GodMode/GodModeToken.sol";
 import {IERC1820Registry} from "openzeppelin-contracts/contracts/utils/introspection/IERC1820Registry.sol";
 
 contract GodModeTokenTest is Test {

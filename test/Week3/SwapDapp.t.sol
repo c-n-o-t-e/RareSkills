@@ -3,11 +3,11 @@ pragma solidity 0.8.19;
 
 import {Test} from "forge-std/Test.sol";
 import {console} from "forge-std/console.sol";
-import {ISwap} from "../../../src/Week3/Interfaces/ISwap.sol";
-import {SwapFactory} from "../../../src/Week3/SwapFactory.sol";
-import {ISwapToken} from "../../../src/Week3/Interfaces/ISwapToken.sol";
+import {ISwap} from "../../src/Week3/Interfaces/ISwap.sol";
+import {SwapFactory} from "../../src/Week3/SwapFactory.sol";
+import {ISwapToken} from "../../src/Week3/Interfaces/ISwapToken.sol";
 import {ERC3156FlashBorrowerMock} from "./mock/ERC3156FlashBorrowerMock.t.sol";
-import {RewardToken as TokenPair} from "../../../src/Week2/NFT_Trio/RewardToken.sol";
+import {RewardToken as TokenPair} from "../../src/Week2/NFT_Trio/RewardToken.sol";
 
 contract SwapDappTest is Test {
     TokenPair public tokenPair;

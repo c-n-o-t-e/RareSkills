@@ -4,9 +4,9 @@ pragma solidity ^0.8.18;
 
 import {console} from "forge-std/console.sol";
 import {Test} from "forge-std/Test.sol";
-import {IEscrow, Escrow} from "../../../../src/Week1/Escrow/Escrow.sol";
-import {EscrowFactory} from "../../../../src/Week1/Escrow/EscrowFactory.sol";
-import {ReserveToken} from "../../../../src/Week1/Bond/ReserveToken.sol";
+import {IEscrow, Escrow} from "../../../src/Week1/Escrow/Escrow.sol";
+import {EscrowFactory} from "../../../src/Week1/Escrow/EscrowFactory.sol";
+import {ReserveToken} from "../../../src/Week1/Bond/ReserveToken.sol";
 
 contract EscrowTest is Test {
     EscrowFactory public escrowFactory;

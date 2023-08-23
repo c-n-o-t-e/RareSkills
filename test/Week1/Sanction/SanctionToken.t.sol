@@ -2,8 +2,8 @@
 pragma solidity ^0.8.13;
 
 import {Test} from "forge-std/Test.sol";
-import {ISanctionToken} from "../../../../src/Week1/Sanction/ISanctionToken.sol";
-import {SanctionToken} from "../../../../src/Week1/Sanction/SanctionToken.sol";
+import {SanctionToken} from "../../../src/Week1/Sanction/SanctionToken.sol";
+import {ISanctionToken} from "../../../src/Week1/Sanction/ISanctionToken.sol";
 import {IERC1820Registry} from "openzeppelin-contracts/contracts/utils/introspection/IERC1820Registry.sol";
 
 contract SanctionTokenTest is Test {

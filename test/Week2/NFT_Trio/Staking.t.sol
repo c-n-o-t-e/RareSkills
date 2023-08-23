@@ -3,9 +3,9 @@ pragma solidity 0.8.19;
 
 import {Test} from "forge-std/Test.sol";
 import {console} from "forge-std/console.sol";
-import {Staking} from "../../../../src/Week2/NFT_Trio/Staking.sol";
-import {NFTRoyalty} from "../../../../src/Week2/NFT_Trio/NFTRoyalty.sol";
-import {RewardToken} from "../../../../src/Week2/NFT_Trio/RewardToken.sol";
+import {Staking} from "../../../src/Week2/NFT_Trio/Staking.sol";
+import {NFTRoyalty} from "../../../src/Week2/NFT_Trio/NFTRoyalty.sol";
+import {RewardToken} from "../../../src/Week2/NFT_Trio/RewardToken.sol";
 
 contract NFTEnumerableTest is Test {
     Staking public staking;
