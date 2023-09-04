@@ -9,6 +9,10 @@ contract Ownable {
     //     owner = msg.sender;
     // }
 
+    function transferOwnership(address newOwner) public onlyOwner {
+        owner = newOwner;
+    }
+
     modifier onlyOwner() {
         require(msg.sender == owner, "Ownable: Caller is not the owner.");
         _;
@@ -39,8 +43,8 @@ contract Pausable is Ownable {
 contract Task is Ownable, Pausable {
     mapping(address => uint256) public balances;
 
-    function transfer(address to, uint256 value) public whenNotPaused {
-        require(balances[msg.sender] >= value, "above user balance"); // fix for test.sol or remove unchecked
+    function transfer(address to, uint256 value) public virtual whenNotPaused {
+        require(balances[msg.sender] >= value, "above user balance"); // fix for test.sol and test3.sol or remove unchecked
         // unchecked to save gas
         unchecked {
             balances[msg.sender] -= value;
