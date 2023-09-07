@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 import "./task.sol";
 
 contract TestToken is Task {
-    constructor() public {
+    constructor() {
         pause(); // pause the contract
         owner = address(0); // lose ownership
     }
