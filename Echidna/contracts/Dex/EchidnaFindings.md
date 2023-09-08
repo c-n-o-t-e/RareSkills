@@ -1,15 +1,16 @@
-`echidna . --contract EchidnaTest --config config.yaml`
+`echidna . --contract EchidnaDexTest --config config.yaml`
 
-[2023-09-08 10:18:39.62] Compiling .... Done! (12.205949s)
-Analyzing contract: /Users/macbook/Documents/Blockchain/Rare/RareSkills/hardhat/contracts/EchidnaTest.sol:EchidnaTest
-[2023-09-08 10:18:51.91] Running slither on .... Done! (1.279226s)
-Loaded 2 transaction sequences from corpus/reproducers
-Loaded 5 transaction sequences from corpus/coverage
+```
+[2023-09-08 11:07:01.08] Compiling .... Done! (15.681266s)
+Analyzing contract: /Users/macbook/Documents/Blockchain/Rare/RareSkills/Echidna/contracts/Dex/EchidnaDexTest.sol:EchidnaDexTest
+[2023-09-08 11:07:16.85] Running slither on .... Done! (1.574783s)
+Loaded 1 transaction sequences from corpus/reproducers
+Loaded 2 transaction sequences from corpus/coverage
 dex(): passing
-balance(): failed!💥  
- Call sequence, shrinking 665/5000:
-balance()
-balance()
+balance(): failed!💥
+  Call sequence, shrinking 93/5000:
+    balance()
+    balance()
 
 Event sequence:
 Panic(1): Using assert
@@ -26,7 +27,9 @@ token1(): passing
 token(): passing
 AssertionFailed(..): passing
 
-Unique instructions: 3430
+
+Unique instructions: 3293
 Unique codehashes: 3
-Corpus size: 5
-Seed: 7074996513801270538
+Corpus size: 1
+Seed: 455721731518842075
+```
