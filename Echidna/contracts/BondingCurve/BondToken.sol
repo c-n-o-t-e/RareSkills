@@ -20,11 +20,8 @@ contract BondToken is ERC1363, IERC1363Receiver, IERC1363Spender, IBondToken {
     using SafeERC20 for ERC1363;
     using ERC165Checker for address;
 
-    ERC1363 acceptedToken;
-    uint256 constant INITIAL_PRICE = 1e18;
-    uint256 public constant MINIMUM_DELAY = 3 minutes;
-
-    mapping(address => uint256) public lastTransactionTimestamp;
+    ERC1363 public acceptedToken;
+    uint256 public constant INITIAL_PRICE = 1e18;
 
     constructor(address token) ERC20("BondToken", "BT") {
         acceptedToken = ERC1363(token);
@@ -52,10 +49,6 @@ contract BondToken is ERC1363, IERC1363Receiver, IERC1363Spender, IBondToken {
         uint256 amount,
         bytes memory data
     ) public override returns (bytes4) {
-        /// Used to prevent frontrunning
-        if (block.timestamp > lastTransactionTimestamp[sender] + MINIMUM_DELAY)
-            revert BondToken_Delay_Period_Not_Passed();
-
         if (_msgSender() == address(acceptedToken)) {
             (uint256 amount_, uint256 numberOfTokensToBuy) = _validatePurchase(
                 data
@@ -79,8 +72,6 @@ contract BondToken is ERC1363, IERC1363Receiver, IERC1363Spender, IBondToken {
         } else {
             revert BondToken_AcceptedToken_Not_Sender();
         }
-
-        lastTransactionTimestamp[sender] = block.timestamp;
 
         return IERC1363Receiver.onTransferReceived.selector;
     }
