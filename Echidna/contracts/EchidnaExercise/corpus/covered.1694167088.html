@@ -1,0 +1,86 @@
+<style> code { white-space: pre-wrap; display: block; background-color: #eee; }.executed { background-color: #afa; }.reverted { background-color: #ffa; }.unexecuted { background-color: #faa; }.neutral { background-color: #eee; }</style><b>/Users/macbook/Documents/Blockchain/Rare/RareSkills/hardhat/contracts/EchidnaExercise/task.sol</b>
+<code>
+  1 |     | <span class='neutral'>// SPDX-License-Identifier: AGPL-3.0</span>
+  2 |     | <span class='neutral'>pragma solidity ^0.8.0;</span>
+  3 |     | <span class='neutral'></span>
+  4 |     | <span class='unexecuted'>contract Ownable {</span>
+  5 | *   | <span class='executed'>    address public owner = msg.sender;</span>
+  6 |     | <span class='neutral'></span>
+  7 |     | <span class='neutral'>    // fix for test1</span>
+  8 |     | <span class='neutral'>    // function Owner() public {</span>
+  9 |     | <span class='neutral'>    //     owner = msg.sender;</span>
+ 10 |     | <span class='neutral'>    // }</span>
+ 11 |     | <span class='neutral'></span>
+ 12 | *   | <span class='executed'>    function transferOwnership(address newOwner) public onlyOwner {</span>
+ 13 | *   | <span class='executed'>        owner = newOwner;</span>
+ 14 |     | <span class='neutral'>    }</span>
+ 15 |     | <span class='neutral'></span>
+ 16 |     | <span class='neutral'>    modifier onlyOwner() {</span>
+ 17 | *r  | <span class='executed'>        require(msg.sender == owner, &quot;Ownable: Caller is not the owner.&quot;);</span>
+ 18 |     | <span class='neutral'>        _;</span>
+ 19 |     | <span class='neutral'>    }</span>
+ 20 |     | <span class='neutral'>}</span>
+ 21 |     | <span class='neutral'></span>
+ 22 |     | <span class='unexecuted'>contract Pausable is Ownable {</span>
+ 23 |     | <span class='neutral'>    bool private _paused;</span>
+ 24 |     | <span class='neutral'></span>
+ 25 | *   | <span class='executed'>    function paused() public view returns (bool) {</span>
+ 26 | *   | <span class='executed'>        return _paused;</span>
+ 27 |     | <span class='neutral'>    }</span>
+ 28 |     | <span class='neutral'></span>
+ 29 | *   | <span class='executed'>    function pause() public onlyOwner {</span>
+ 30 | *   | <span class='executed'>        _paused = true;</span>
+ 31 |     | <span class='neutral'>    }</span>
+ 32 |     | <span class='neutral'></span>
+ 33 | *   | <span class='executed'>    function resume() public onlyOwner {</span>
+ 34 | *   | <span class='executed'>        _paused = false;</span>
+ 35 |     | <span class='neutral'>    }</span>
+ 36 |     | <span class='neutral'></span>
+ 37 |     | <span class='neutral'>    modifier whenNotPaused() {</span>
+ 38 | *r  | <span class='executed'>        require(!_paused, &quot;Pausable: Contract is paused.&quot;);</span>
+ 39 |     | <span class='neutral'>        _;</span>
+ 40 |     | <span class='neutral'>    }</span>
+ 41 |     | <span class='neutral'>}</span>
+ 42 |     | <span class='neutral'></span>
+ 43 |     | <span class='unexecuted'>contract Task is Ownable, Pausable {</span>
+ 44 | *   | <span class='executed'>    mapping(address =&gt; uint256) public balances;</span>
+ 45 |     | <span class='neutral'></span>
+ 46 | *   | <span class='executed'>    function transfer(address to, uint256 value) public virtual whenNotPaused {</span>
+ 47 |     | <span class='neutral'>        // require(balances[msg.sender] &gt;= value, &quot;above user balance&quot;); // fix for test.sol and test3.sol or remove unchecked</span>
+ 48 |     | <span class='neutral'>        // unchecked to save gas</span>
+ 49 |     | <span class='neutral'>        unchecked {</span>
+ 50 | *   | <span class='executed'>            balances[msg.sender] -= value;</span>
+ 51 | *   | <span class='executed'>            balances[to] += value;</span>
+ 52 |     | <span class='neutral'>        }</span>
+ 53 |     | <span class='neutral'>    }</span>
+ 54 |     | <span class='neutral'>}</span>
+ 55 |     | <span class='neutral'></span>
+
+</code>
+<br />
+
+<b>/Users/macbook/Documents/Blockchain/Rare/RareSkills/hardhat/contracts/EchidnaExercise/test3.sol</b>
+<code>
+  1 |     | <span class='neutral'>pragma solidity ^0.8.0;</span>
+  2 |     | <span class='neutral'></span>
+  3 |     | <span class='neutral'>import &quot;./task.sol&quot;;</span>
+  4 |     | <span class='neutral'></span>
+  5 | *r  | <span class='executed'>contract TestToken is Task {</span>
+  6 | *   | <span class='executed'>    function transfer(address to, uint256 value) public override {</span>
+  7 | *   | <span class='executed'>        uint256 senderBalancerBeforeTx = balances[msg.sender];</span>
+  8 | *   | <span class='executed'>        uint256 receiverBalancerBeforeTx = balances[to];</span>
+  9 |     | <span class='neutral'></span>
+ 10 | *   | <span class='executed'>        super.transfer(to, value);</span>
+ 11 |     | <span class='neutral'></span>
+ 12 | *   | <span class='executed'>        uint256 senderBalancerAftereTx = balances[msg.sender];</span>
+ 13 | *   | <span class='executed'>        uint256 receiverBalancerAftereTx = balances[to];</span>
+ 14 |     | <span class='neutral'></span>
+ 15 | *   | <span class='executed'>        assert(senderBalancerBeforeTx &gt;= senderBalancerAftereTx);</span>
+ 16 | *   | <span class='executed'>        assert(receiverBalancerAftereTx &gt;= receiverBalancerBeforeTx);</span>
+ 17 |     | <span class='neutral'>    }</span>
+ 18 |     | <span class='neutral'>}</span>
+ 19 |     | <span class='neutral'></span>
+
+</code>
+<br />
+
