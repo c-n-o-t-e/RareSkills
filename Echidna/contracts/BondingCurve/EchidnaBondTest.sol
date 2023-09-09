@@ -22,6 +22,7 @@ contract EchidnaBondTest is SetUp {
 
         bytes memory data = abi.encode(amount);
 
+        // Buy bond token
         try
             reserveToken.approveAndCall(
                 address(bondToken),
@@ -46,6 +47,7 @@ contract EchidnaBondTest is SetUp {
             assert(false);
         }
 
+        // Sell bond token
         try bondToken.transferAndCall(address(bondToken), amount, "") {
             uint256 reserveBalanceAfterSellTx = reserveToken.balanceOf(
                 address(this)
@@ -59,7 +61,6 @@ contract EchidnaBondTest is SetUp {
             //Checks user bond token balance is correct after selling token back.
             assert(bondBalanceAfterSellTx == bondBalanceBeforeSalesTx - amount);
         } catch (bytes memory err) {
-            // Post-condition
             assert(false);
         }
     }
