@@ -6,6 +6,8 @@ import "./SetUp.sol";
 contract EchidnaBondTest is SetUp {
     function sales(uint amount) public {
         if (amount == 0) amount = 1;
+
+        // Ensure amount is at least 1e18
         if (amount < 1e18) amount = amount * 1e18;
 
         uint amountPurchased = (bondToken.calculateBuyPrice(amount) * amount) /
@@ -31,14 +33,16 @@ contract EchidnaBondTest is SetUp {
             uint256 reserveBalanceAfterBuyTx = reserveToken.balanceOf(
                 address(this)
             );
+
+            // Checks user get correct bond tokens after purchase.
             assert(bondBalanceAfterBuyTx == bondBalanceBeforeSalesTx + amount);
 
+            // Checks user pays correct amount of reserve token for bond token.
             assert(
                 reserveBalanceAfterBuyTx ==
                     reserveBalanceBeforeSalesTx - amountPurchased
             );
         } catch (bytes memory err) {
-            // Post-condition
             assert(false);
         }
 
@@ -48,7 +52,11 @@ contract EchidnaBondTest is SetUp {
             );
             uint256 bondBalanceAfterSellTx = bondToken.balanceOf(address(this));
 
+            // Checks user initial reserve balance is less after buy and sell of bond token
+            // as sell price is always higher than buy price (this is soley based on buying and selling immediately).
             assert(reserveBalanceBeforeSalesTx > reserveBalanceAfterSellTx);
+
+            //Checks user bond token balance is correct after selling token back.
             assert(bondBalanceAfterSellTx == bondBalanceBeforeSalesTx - amount);
         } catch (bytes memory err) {
             // Post-condition
