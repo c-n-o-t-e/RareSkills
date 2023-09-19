@@ -5,7 +5,6 @@ import "./mintable.sol";
 contract TestToken is MintableToken {
     address echidna = msg.sender;
 
-    // TODO: update the constructor
     constructor() MintableToken(10_000) {
         owner = echidna;
     }
